@@ -13,12 +13,12 @@
    "name": "Snowhite"
   },
   {
-   "id": "p_lanslie",
-   "name": "Lanslie"
+   "id": "p_cj",
+   "name": "CJ"
   },
   {
-   "id": "p_cj",
-   "name": "CJ",
+   "id": "p_lanslie",
+   "name": "Lanslie",
    "backup": true
   }
  ]

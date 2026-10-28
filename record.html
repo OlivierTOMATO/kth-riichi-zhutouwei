@@ -217,7 +217,7 @@ function render() {
 function viewSetup() {
   const done = new Set(S.published.map(g => g.no));
   const next = Array.from({ length: TOTAL }, (_, i) => i + 1).find(n => !done.has(n)) || TOTAL;
-  const opts = `<option value="">选择选手</option>` + S.roster.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  const opts = `<option value="">选择选手</option>` + S.roster.map(p => `<option value="${esc(p.id)}">${esc(p.name)}${p.backup ? '（替补）' : ''}</option>`).join('');
   return `<section>
     <div class="panel">
       <h2 style="margin-bottom:12px">开始一个半庄</h2>

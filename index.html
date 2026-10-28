@@ -103,6 +103,8 @@ h3{font-size:15px;margin:0 0 12px;font-weight:700}
 .rrow{display:grid;grid-template-columns:64px 1fr repeat(3,minmax(84px,auto));gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 20px}
 .rrow.h{background:none;border:0;padding-block:0;font-size:12px;color:var(--muted);letter-spacing:.06em}
 .rrow .pos-n{font-family:var(--mono);font-size:30px;font-weight:600;line-height:1}
+.rrow .pos-n .sub{font-family:var(--body);font-size:13px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:2px 6px}
+.rrow.bk{background:none;border-style:dashed}
 .rrow.r1{border-color:var(--aka);box-shadow:inset 5px 0 0 var(--aka)}
 .rrow .who{font-weight:700;font-size:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
 .badge{font-family:var(--display);font-weight:400;font-size:13px;padding:1px 8px;border-radius:4px;color:#fff}
@@ -294,7 +296,7 @@ const MEDAL = ['var(--aka)', 'var(--gold)', 'var(--felt)'];
 
 function stats() {
   const P = {};
-  for (const p of S.roster) P[p.id] = { id: p.id, name: p.name, n: 0, pt: 0, ranks: [0, 0, 0, 0], win: 0, dealin: 0, riichi: 0, hands: 0, best: null };
+  for (const p of S.roster) P[p.id] = { id: p.id, name: p.name, backup: !!p.backup, n: 0, pt: 0, ranks: [0, 0, 0, 0], win: 0, dealin: 0, riichi: 0, hands: 0, best: null };
   let worst = null;
   for (const g of S.games) {
     const R = replay(g);
@@ -317,7 +319,8 @@ function stats() {
     }
   }
   const list = Object.values(P).map(x => ({ ...x, pt: Math.round(x.pt * 10) / 10, avg: x.n ? x.ranks.reduce((a, c, i) => a + c * (i + 1), 0) / x.n : null }));
-  list.sort((a, b) => (b.n > 0) - (a.n > 0) || b.pt - a.pt || (a.avg ?? 9) - (b.avg ?? 9));
+  // 替补不参与头衔排名，排在最后
+  list.sort((a, b) => a.backup - b.backup || (b.n > 0) - (a.n > 0) || b.pt - a.pt || (a.avg ?? 9) - (b.avg ?? 9));
   return { list, worst };
 }
 
@@ -332,8 +335,8 @@ function renderMatch() {
   const el = document.getElementById('match');
   if (!S.games.length) {
     el.innerHTML = `<div class="head"><b>第 1 半庄</b><span class="st done">即将开始</span></div>
-      <div class="tiles">${S.roster.slice(0, 4).map((p, i) => `<div class="tile"><div class="w">${WINDS[i]}</div><div class="n">${esc(p.name)}</div><div class="s">${START}</div><div class="p">座位待定</div></div>`).join('')}</div>
-      <div class="foot"><span>选手：${S.roster.map(p => esc(p.name)).join(' · ') || '待定'}</span></div>`;
+      <div class="tiles">${S.roster.filter(p => !p.backup).slice(0, 4).map((p, i) => `<div class="tile"><div class="w">${WINDS[i]}</div><div class="n">${esc(p.name)}</div><div class="s">${START}</div><div class="p">座位待定</div></div>`).join('')}</div>
+      <div class="foot"><span>选手：${S.roster.filter(p => !p.backup).map(p => esc(p.name)).join(' · ') || '待定'}${S.roster.some(p => p.backup) ? ` · 替补：${S.roster.filter(p => p.backup).map(p => esc(p.name)).join('、')}` : ''}</span></div>`;
     return;
   }
   // current = latest unfinished game, else the most recent finished one
@@ -357,11 +360,11 @@ function renderRank(list) {
   const head = `<div class="rrow h"><span>名次</span><span>选手</span><span class="v">积分</span><span class="v hide-s">差距</span><span class="v hide-s">半庄</span></div>`;
   el.innerHTML = head + list.map((x, i) => {
     const prev = list[i - 1];
-    const gap = x.n && prev && prev.n ? (prev.pt - x.pt).toFixed(1) : '—';
+    const gap = x.n && prev && prev.n && !x.backup ? (prev.pt - x.pt).toFixed(1) : '—';
     const dist = x.n ? `<div class="bars" title="1/2/3/4 位次数">${x.ranks.map((c, k) => `<i style="width:${c / x.n * 100}%;background:${['var(--aka)', 'var(--gold)', 'var(--felt)', 'var(--muted)'][k]}"></i>`).join('')}</div>` : '';
-    return `<div class="rrow ${x.n && i === 0 ? 'r1' : ''}">
-      <span class="pos-n">${x.n ? i + 1 : '–'}</span>
-      <div><div class="who">${esc(x.name)}${x.n && i < 3 ? `<span class="badge" style="background:${MEDAL[i]}">${TITLES[i]}</span>` : ''}</div>${dist}</div>
+    return `<div class="rrow ${x.backup ? 'bk' : x.n && i === 0 ? 'r1' : ''}">
+      <span class="pos-n">${x.backup ? '<span class="sub">替补</span>' : x.n ? i + 1 : '–'}</span>
+      <div><div class="who">${esc(x.name)}${x.n && i < 3 && !x.backup ? `<span class="badge" style="background:${MEDAL[i]}">${TITLES[i]}</span>` : ''}</div>${dist}</div>
       <span class="v pt ${sign(x.pt)}">${x.n ? fmtPt(x.pt) : '—'}</span>
       <span class="v hide-s muted">${i === 0 || !x.n ? '—' : gap}</span>
       <span class="v hide-s">${x.n}/${TOTAL}</span>
@@ -371,7 +374,7 @@ function renderRank(list) {
 
 function renderFull(list) {
   document.getElementById('full').innerHTML = list.map((x, i) => `<tr>
-    <td>${x.n ? i + 1 : '–'}</td><td>${esc(x.name)}</td>
+    <td>${x.backup ? '替补' : x.n ? i + 1 : '–'}</td><td>${esc(x.name)}${x.backup ? '<span class="muted">（替补）</span>' : ''}</td>
     <td class="${sign(x.pt)}"><b>${x.n ? fmtPt(x.pt) : '–'}</b></td>
     <td>${x.n}</td><td>${x.ranks.join(' / ')}</td>
     <td>${x.avg != null ? x.avg.toFixed(2) : '–'}</td>

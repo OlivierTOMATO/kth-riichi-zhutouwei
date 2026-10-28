@@ -112,7 +112,8 @@ def clean_game(g, roster_ids, gid):
 
 def load_roster():
     r = json.loads((ROOT / "roster.json").read_text())
-    players = [{"id": str(p["id"]), "name": str(p["name"])[:24]} for p in r["players"]]
+    players = [{"id": str(p["id"]), "name": str(p["name"])[:24], **({"backup": True} if p.get("backup") else {})}
+               for p in r["players"]]
     return players, {p["id"] for p in players}
 
 

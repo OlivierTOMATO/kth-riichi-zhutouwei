@@ -1,6 +1,5 @@
 {
- "syncedAt": 1793204903754,
- "roster": [
+ "players": [
   {
    "id": "p_dean",
    "name": "Dean"
@@ -17,6 +16,5 @@
    "id": "p_lanslie",
    "name": "Lanslie"
   }
- ],
- "games": []
+ ]
 }

@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>记录成绩 · 猪头位</title>
+<meta name="description" content="猪头位记分页：逐局记录一个半庄，终局后提交到 GitHub 等待审核。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one centred column (max 980px); sticky tab bar; the seat board is a 4-up row of score "tiles" that folds to 2×2 on phones */
+:root{
+  --bg:#e8eee9; --surface:#fbfcf8; --soft:#dfe7e1; --line:#cfdad2;
+  --ink:#16211b; --muted:#56665d;
+  --felt:#1c5a42; --felt-ink:#f2f8f4; --aka:#c3302a; --gold:#9c6f12;
+  --good:#1d7a4b; --bad:#b4372d;
+  --display:"ZCOOL KuaiLe","Noto Sans SC",system-ui,sans-serif;
+  --body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1712; --surface:#15211a; --soft:#1c2b22; --line:#2a3b31;
+  --ink:#e4ebe6; --muted:#93a59a;
+  --felt:#3f9c74; --felt-ink:#0b140f; --aka:#ec6457; --gold:#d9a83e;
+  --good:#58c08a; --bad:#ef7a6c; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0e1712; --surface:#15211a; --soft:#1c2b22; --line:#2a3b31;
+  --ink:#e4ebe6; --muted:#93a59a;
+  --felt:#3f9c74; --felt-ink:#0b140f; --aka:#ec6457; --gold:#d9a83e;
+  --good:#58c08a; --bad:#ef7a6c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:980px;margin:0 auto}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--felt);outline-offset:2px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* header */
+header{display:flex;align-items:center;gap:14px;padding-block:24px 14px;flex-wrap:wrap}
+.seal{width:52px;height:52px;border-radius:8px;background:var(--aka);color:#fff;display:grid;place-items:center;
+  font-family:var(--display);font-size:32px;line-height:1;flex:none;box-shadow:inset 0 0 0 3px color-mix(in srgb,#fff 30%,transparent)}
+.htxt{min-width:0;flex:1}
+h1{font-family:var(--display);font-weight:400;font-size:34px;line-height:1.1;margin:0;letter-spacing:.02em;text-wrap:balance}
+.sub{color:var(--muted);font-size:13px;margin-top:4px}
+.progress{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.progress .lbl{font-size:12px;color:var(--muted);letter-spacing:.06em}
+.pips{display:grid;grid-template-columns:repeat(16,10px);gap:3px}
+.pip{height:14px;border-radius:2px;background:var(--soft);border:1px solid var(--line)}
+.pip.on{background:var(--felt);border-color:var(--felt)}
+
+/* tabs */
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:4px;padding-block:8px;border-bottom:1px solid var(--line);margin-bottom:20px}
+nav button{background:none;border:0;padding:8px 14px;border-radius:999px;color:var(--muted);font-weight:500}
+nav button[aria-current="true"]{background:var(--felt);color:var(--felt-ink)}
+
+.banner{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:14px}
+.banner.warn{border-color:var(--aka)}
+section{display:flex;flex-direction:column;gap:16px}
+h2{font-size:17px;margin:0;font-weight:700}
+h3{font-size:12px;margin:0;font-weight:600;color:var(--muted);letter-spacing:.08em}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.empty{text-align:center;padding:36px 16px;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+
+/* buttons & fields */
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 14px;border-radius:8px;font-weight:500}
+.btn:hover{border-color:var(--felt)}
+.btn.primary{background:var(--felt);border-color:var(--felt);color:var(--felt-ink)}
+.btn.danger{color:var(--bad)}
+.btn.danger.armed{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:4px 10px;font-size:13px}
+input[type=text],input[type=number],select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:0}
+input[type=number]{width:110px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}
+label.f > *{color:var(--ink);font-size:15px}
+
+/* leaderboard */
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:12px;font-weight:600;color:var(--muted);text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:nth-child(-n+2),td:nth-child(-n+2){text-align:left}
+tr:last-child td{border-bottom:0}
+.rk{font-family:var(--mono);font-weight:600;width:2.5em}
+.title{display:inline-block;font-family:var(--display);font-size:13px;padding:1px 8px;border-radius:4px;margin-left:8px;vertical-align:1px}
+.t0{background:var(--aka);color:#fff}
+.t1{background:var(--gold);color:var(--surface)}
+.t2{background:var(--felt);color:var(--felt-ink)}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.award{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+.award .big{font-family:var(--mono);font-size:28px;font-weight:600;color:var(--aka)}
+
+/* game list */
+.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.gcard{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.gcard:hover{border-color:var(--felt)}
+.gcard .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.gno{font-family:var(--display);font-size:20px}
+.chip{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.chip.live{border-color:var(--aka);color:var(--aka)}
+.chip.done{background:var(--soft)}
+.glines{display:grid;grid-template-columns:auto 1fr auto auto;gap:2px 10px;font-size:14px}
+.glines .w{color:var(--muted)}
+.glines .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* game detail */
+.back{background:none;border:0;color:var(--muted);padding:0}
+.ghead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ghead .gno{font-size:28px}
+.state{font-family:var(--display);font-size:22px;color:var(--felt)}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.seat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 12px 10px;display:flex;flex-direction:column;gap:2px;position:relative;min-width:0}
+.seat.dealer{border-color:var(--aka);box-shadow:inset 0 3px 0 var(--aka)}
+.seat .wind{font-family:var(--display);font-size:22px;line-height:1}
+.seat .who{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat .sc{font-family:var(--mono);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
+.seat .meta{font-size:12px;color:var(--muted)}
+.seat .dtag{position:absolute;top:10px;right:10px;font-size:11px;color:var(--aka);font-weight:700}
+.sticks{display:flex;gap:16px;font-size:13px;color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 12px;min-width:0}
+.seg button[aria-pressed="true"]{background:var(--felt);border-color:var(--felt);color:var(--felt-ink)}
+.seg button:disabled{opacity:.35;cursor:not-allowed}
+.fgrid{display:grid;grid-template-columns:110px 1fr;gap:12px 14px;align-items:center}
+.fgrid > .k{font-size:13px;color:var(--muted)}
+.preview{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:var(--soft);border-radius:8px;padding:10px}
+.preview div{font-size:13px;text-align:center;min-width:0}
+.preview b{display:block;font-family:var(--mono);font-size:15px}
+.hlog{display:flex;flex-direction:column}
+.hl{display:grid;grid-template-columns:7.5em 1fr auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:start}
+.hl:last-child{border-bottom:0}
+.hl .rd{font-size:13px;color:var(--muted)}
+.hl .ds{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.x{background:none;border:0;color:var(--muted);font-size:13px;padding:2px 6px;border-radius:6px}
+.x:hover{color:var(--bad)}
+.final{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+
+/* players */
+.plist{display:flex;flex-direction:column}
+.pl{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.pl:last-child{border-bottom:0}
+.pl .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+
+@media (max-width:640px){
+  h1{font-size:28px}
+  .progress{align-items:flex-start;width:100%}
+  .pips{grid-template-columns:repeat(16,1fr);width:100%}
+  .board,.preview,.final{grid-template-columns:repeat(2,1fr)}
+  .fgrid{grid-template-columns:1fr;gap:6px}
+  .fgrid > .k{margin-top:6px}
+  .hl{grid-template-columns:1fr auto}
+  .hl .rd{grid-column:1/-1}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+html{color-scheme:light}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+header a.home{color:var(--muted);font-size:13px;text-decoration:none;white-space:nowrap}
+.steps{display:flex;flex-direction:column;gap:8px;margin:0;padding-left:20px;font-size:14px}
+.code{font-family:var(--mono);font-size:12px;background:var(--soft);border-radius:8px;padding:10px;max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="seal" aria-hidden="true">猪</div>
+    <div class="htxt">
+      <h1>记录成绩</h1>
+      <div class="sub">猪头位 · M.LEAGUE 规则（有切上满贯）· 终局后提交到 GitHub，审核通过后公布</div>
+    </div>
+    <a class="home" href="./">← 返回首页</a>
+  </header>
+  <div id="banner"></div>
+  <main id="app"><div class="empty">正在读取选手名单…</div></main>
+</div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="scoring.js"></script>
+<script>
+const REPO = 'OlivierTOMATO/kth-riichi-zhutouwei';
+const KEY = 'zhutouwei-draft-v1';
+const S = { roster: [], published: [], draft: null, form: freshForm(), finalEdit: false, armed: null, submitted: false };
+function freshForm() { return { kind: 'ron', winner: null, loser: null, han: 1, fu: 30, pao: null, riichi: [], tenpai: [] }; }
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const nameOf = id => (S.roster.find(p => p.id === id) || {}).name || id;
+const fmtPt = v => (v > 0 ? '+' : '') + v.toFixed(1);
+const fmtD = v => v === 0 ? '0' : (v > 0 ? '+' : '') + v;
+const sign = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+
+/* ---------- draft kept on this device ---------- */
+function load() { try { const d = JSON.parse(localStorage.getItem(KEY)); if (d && Array.isArray(d.seats)) S.draft = d; } catch {} }
+function save() { try { S.draft ? localStorage.setItem(KEY, JSON.stringify(S.draft)) : localStorage.removeItem(KEY); } catch {} }
+let toastT;
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3200); }
+
+/* ---------- views ---------- */
+function render() {
+  const keep = {};
+  document.querySelectorAll('#app input[id], #app select[id]').forEach(el => keep[el.id] = el.value);
+  const app = document.getElementById('app');
+  app.innerHTML = S.draft ? viewGame(S.draft) : viewSetup();
+  for (const [id, v] of Object.entries(keep)) { const el = document.getElementById(id); if (el && el.dataset.fresh == null) el.value = v; }
+}
+
+function viewSetup() {
+  const done = new Set(S.published.map(g => g.no));
+  const next = Array.from({ length: TOTAL }, (_, i) => i + 1).find(n => !done.has(n)) || TOTAL;
+  const opts = `<option value="">选择选手</option>` + S.roster.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  return `<section>
+    <div class="panel">
+      <h2 style="margin-bottom:12px">开始一个半庄</h2>
+      <div class="row" style="margin-bottom:12px">
+        <label class="f">第几个半庄<select id="ng-no">${Array.from({ length: TOTAL }, (_, i) => `<option value="${i + 1}" ${i + 1 === next ? 'selected' : ''}>第 ${i + 1} 半庄${done.has(i + 1) ? '（已公布）' : ''}</option>`).join('')}</select></label>
+        <label class="f">记录人<input type="text" id="ng-scorer" placeholder="你的名字" maxlength="40"></label>
+      </div>
+      <div class="row" style="margin-bottom:14px">${WINDS.map((w, i) => `<label class="f">${w}家${i === 0 ? '（起家）' : ''}<select id="ng-s${i}">${opts}</select></label>`).join('')}</div>
+      <button class="btn primary" data-act="create">开始记录</button>
+    </div>
+    <div class="panel">
+      <h3 style="margin-bottom:10px">怎么用</h3>
+      <ol class="steps">
+        <li>选好第几个半庄和东南西北四家，点「开始记录」。</li>
+        <li>每局结束后选结果（荣和、自摸、流局），点「记录」。局数、本场、供托都会自动计算。</li>
+        <li>记录保存在这台设备上，刷新页面不会丢。请一桌只用一台设备记录。</li>
+        <li>南 4 局结束后点「提交审核」：会打开 GitHub，登录后按提示提交。主办方审核通过后，成绩会出现在首页。</li>
+      </ol>
+    </div>
+  </section>`;
+}
+
+function seg(name, opts) {
+  return `<div class="seg" role="group">${opts.map(o => `<button type="button" data-act="${name}" data-v="${o.v}" aria-pressed="${!!o.on}" ${o.dis ? 'disabled' : ''}>${o.t}</button>`).join('')}</div>`;
+}
+
+function viewGame(g) {
+  const R = replay(g), F = S.form, P = i => esc(nameOf(g.seats[i]));
+  const seats = g.seats.map((pid, i) => `<div class="seat ${!R.done && R.dealer === i ? 'dealer' : ''}">
+      ${!R.done && R.dealer === i ? '<span class="dtag">庄</span>' : ''}
+      <span class="wind">${WINDS[i]}</span><span class="who">${P(i)}</span>
+      <span class="sc">${R.scores[i]}</span>
+      <span class="meta num">${R.done ? `${R.rank[i] + 1}位 · <span class="${sign(R.pts[i])}">${fmtPt(R.pts[i])}</span>${R.pen[i] ? `（罚 ${R.pen[i]}）` : ''}` : `${R.scores[i] - START >= 0 ? '+' : ''}${R.scores[i] - START}`}</span>
+    </div>`).join('');
+
+  let entry = '';
+  if (!R.done) {
+    let rows = `<span class="k">结果</span>${seg('f-kind', [{ v: 'ron', t: '荣和', on: F.kind === 'ron' }, { v: 'tsumo', t: '自摸', on: F.kind === 'tsumo' }, { v: 'draw', t: '流局', on: F.kind === 'draw' }, { v: 'manual', t: '罚则 / 调整', on: F.kind === 'manual' }])}`;
+    if (F.kind === 'ron' || F.kind === 'tsumo') {
+      rows += `<span class="k">和了</span>${seg('f-winner', [0, 1, 2, 3].map(i => ({ v: i, t: `${WINDS[i]} ${P(i)}`, on: F.winner === i })))}`;
+      if (F.kind === 'ron') rows += `<span class="k">放铳</span>${seg('f-loser', [0, 1, 2, 3].map(i => ({ v: i, t: `${WINDS[i]} ${P(i)}`, on: F.loser === i, dis: F.winner === i })))}`;
+      rows += `<span class="k">番 / 符</span><div class="row">
+        <select id="f-han" data-fresh>${HAN_OPTS.map(([v, t]) => `<option value="${v}" ${F.han === v ? 'selected' : ''}>${t}</option>`).join('')}</select>
+        <select id="f-fu" data-fresh ${F.han >= 5 ? 'disabled' : ''}>${FU_OPTS.map(v => `<option value="${v}" ${F.fu === v ? 'selected' : ''}>${v} 符</option>`).join('')}</select></div>`;
+      if (F.han >= 13) rows += `<span class="k">包牌</span>${seg('f-pao', [{ v: -1, t: '无', on: F.pao == null }, ...[0, 1, 2, 3].map(i => ({ v: i, t: `${WINDS[i]} ${P(i)}`, on: F.pao === i, dis: i === F.winner || (F.kind === 'ron' && i === F.loser) }))])}`;
+    }
+    if (F.kind === 'draw') rows += `<span class="k">听牌</span>${seg('f-tenpai', [0, 1, 2, 3].map(i => ({ v: i, t: `${WINDS[i]} ${P(i)}`, on: F.tenpai.includes(i) })))}`;
+    if (F.kind !== 'manual') rows += `<span class="k">立直</span>${seg('f-riichi', [0, 1, 2, 3].map(i => ({ v: i, t: `${WINDS[i]} ${P(i)}`, on: F.riichi.includes(i) })))}`;
+    if (F.kind === 'manual') {
+      rows += `<span class="k">点数变化</span><div class="row">${[0, 1, 2, 3].map(i => `<label class="f">${WINDS[i]} ${P(i)}<input type="number" step="100" id="f-d${i}" placeholder="0"></label>`).join('')}</div>`;
+      rows += `<span class="k">积分罚则</span><div class="row">${[0, 1, 2, 3].map(i => `<label class="f">${WINDS[i]} ${P(i)}<input type="number" step="1" id="f-p${i}" placeholder="0"></label>`).join('')}</div>`;
+      rows += `<span class="k">说明</span><input type="text" id="f-note" placeholder="例如：错和（积分罚则填 −20）" maxlength="80">`;
+    }
+    const cand = candidate();
+    let prev = '';
+    if (cand && cand.kind !== 'manual') {
+      const L = replay({ hands: [...g.hands, cand] }).log.at(-1);
+      prev = `<div class="preview">${L.d.map((v, i) => `<div>${WINDS[i]} ${P(i)}<b class="${sign(v)}">${fmtD(v)}</b></div>`).join('')}</div>
+        ${cand.kind === 'ron' || cand.kind === 'tsumo' ? `<div class="muted small">${handName(cand)} · ${cand.kind === 'ron' ? `${L.value} 点` : `自摸合计 ${L.value} 点`}${R.h ? `（含 ${R.h} 本场）` : ''}${R.pot ? ` · 拿走供托 ${R.pot}` : ''}</div>` : ''}`;
+    }
+    if (F.kind === 'manual') prev = `<div class="muted small">罚则 / 调整不会推进局数。M.LEAGUE 错和：积分罚则填 −20，点数不变，本局重打。</div>`;
+    entry = `<div class="panel"><h2 style="margin-bottom:14px">记录这一局 · ${roundLabel(R.r, R.h)}</h2>
+      <div class="fgrid">${rows}</div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">${prev}
+      <div class="row"><button class="btn primary" data-act="add-hand" ${cand ? '' : 'disabled'}>记录</button><span class="muted small">${cand ? '' : hint()}</span></div></div>
+    </div>`;
+  }
+
+  let finalP = '';
+  if (S.finalEdit) {
+    finalP = `<div class="panel"><h2 style="margin-bottom:6px">直接录入终局点数</h2>
+      <p class="muted small" style="margin:0 0 12px">适合没有逐局记录的对局。四家合计必须是 100000（供托已分配）。</p>
+      <div class="final">${g.seats.map((pid, i) => `<label class="f">${WINDS[i]} ${P(i)}<input type="number" step="100" id="fin${i}" value="${(g.final || R.scores)[i]}"></label>`).join('')}</div>
+      <div class="row" style="margin-top:12px"><button class="btn primary" data-act="save-final">保存终局点数</button><button class="btn" data-act="cancel-final">取消</button>${g.final ? `<button class="btn danger" data-act="clear-final">清除，改回逐局计算</button>` : ''}</div></div>`;
+  }
+
+  const log = R.log.length ? R.log.slice().reverse().map((L, k) => {
+    const idx = R.log.length - 1 - k, hd = L.hd;
+    let what = '';
+    if (hd.kind === 'ron') what = `<b>${P(hd.winner)}</b> 荣和 ${P(hd.loser)} · ${handName(hd)} ${L.value}`;
+    else if (hd.kind === 'tsumo') what = `<b>${P(hd.winner)}</b> 自摸 · ${handName(hd)}`;
+    else if (hd.kind === 'draw') what = `流局 · 听牌：${(hd.tenpai || []).length ? hd.tenpai.map(P).join('、') : '无'}`;
+    else what = `调整${hd.note ? ' · ' + esc(hd.note) : ''}${(hd.pen || []).some(Number) ? ' · 罚则 ' + hd.pen.map((v, i) => +v ? `${P(i)} ${v}` : '').filter(Boolean).join('、') : ''}`;
+    const rc = (hd.pao != null ? ` · 包牌：${P(hd.pao)}` : '') + ((hd.riichi || []).length ? ` · 立直：${hd.riichi.map(P).join('、')}` : '');
+    return `<div class="hl"><span class="rd">${L.label}</span><div>${what}${rc}<div class="ds">${L.d.map((v, i) => `${WINDS[i]}${fmtD(v)}`).join('  ')}</div></div><button class="x" data-act="del-hand" data-i="${idx}" aria-label="删除这一局">删除</button></div>`;
+  }).join('') : `<div class="muted small">还没有记录。从东1局开始，每局结束后在上面选择结果并点「记录」。</div>`;
+
+  const json = gameJSON(g);
+  const submit = `<div class="panel"><h2 style="margin-bottom:6px">提交审核</h2>
+    ${R.done ? `<p class="small" style="margin:0 0 12px">终局了。点「提交审核」会打开 GitHub 并自动填好这个半庄的记录：登录后点 <b>Propose new file</b>（或 Commit changes），再点 <b>Create pull request</b>。主办方审核合并后，成绩会出现在首页。</p>
+      <div class="row"><button class="btn primary" data-act="submit">提交审核</button><button class="btn" data-act="copy">复制记录（备用）</button></div>
+      ${S.submitted ? `<p class="small muted" style="margin:12px 0 0">已打开 GitHub。提交成功后，点下面的「开始新的半庄」清空这台设备上的记录。</p>` : ''}
+      <details style="margin-top:12px"><summary class="small muted">查看将要提交的内容</summary><div class="code" id="json">${esc(json)}</div></details>`
+      : `<p class="muted small" style="margin:0">南 4 局结束（或直接录入终局点数）后才能提交。</p>`}
+  </div>`;
+
+  const armedNew = S.armed === 'new';
+  return `<section>
+    <div class="ghead"><span class="gno">第 ${g.no} 半庄</span>${R.done ? '<span class="state">终局</span>' : `<span class="state">${roundLabel(R.r, R.h)}</span>`}<span class="spacer"></span>
+      <div class="sticks"><span>本场 <b class="num">${R.done ? '–' : R.h}</b></span><span>供托 <b class="num">${R.pot}</b></span><span>已记录 <b class="num">${g.hands.length}</b> 局</span></div></div>
+    <div class="board">${seats}</div>
+    ${g.final ? `<div class="banner">终局点数为直接录入。</div>` : ''}
+    ${entry}${finalP}${submit}
+    <div class="panel"><div class="row" style="margin-bottom:8px"><h2>牌谱</h2><span class="spacer"></span>${!S.finalEdit ? `<button class="btn sm" data-act="edit-final">直接录入终局点数</button>` : ''}</div>
+      <div class="hlog">${log}</div></div>
+    <div class="row"><span class="muted small">记录人：${esc(g.scorer || '未填写')}</span><span class="spacer"></span><button class="btn sm danger ${armedNew ? 'armed' : ''}" data-act="new">${armedNew ? '再点一次：清空并开始新的半庄' : '开始新的半庄'}</button></div>
+  </section>`;
+}
+
+function candidate() {
+  const F = S.form;
+  const win = () => { const c = { han: F.han, fu: F.han >= 5 ? 30 : F.fu, riichi: F.riichi.slice() }; if (F.han >= 13 && F.pao != null) c.pao = F.pao; return c; };
+  if ((F.kind === 'ron' || F.kind === 'tsumo') && fuError(F.kind, F.han, F.fu)) return null;
+  if (F.kind === 'ron') { if (F.winner == null || F.loser == null || F.winner === F.loser) return null; return { kind: 'ron', winner: F.winner, loser: F.loser, ...win() }; }
+  if (F.kind === 'tsumo') { if (F.winner == null) return null; return { kind: 'tsumo', winner: F.winner, ...win() }; }
+  if (F.kind === 'draw') return { kind: 'draw', tenpai: F.tenpai.slice().sort(), riichi: F.riichi.slice() };
+  return { kind: 'manual' };
+}
+function hint() {
+  const F = S.form;
+  if (F.kind === 'ron' || F.kind === 'tsumo') { const e = fuError(F.kind, F.han, F.fu); if (e) return e; }
+  if (F.winner == null) return '先选和了的人';
+  if (F.kind === 'ron' && F.loser == null) return '再选放铳的人';
+  return '';
+}
+
+// One hand per line keeps the pull request diff readable for the reviewer.
+function gameJSON(g) {
+  const head = { no: g.no, table: g.table || '', seats: g.seats, final: g.final || null, createdAt: g.createdAt, scorer: g.scorer || '' };
+  const names = g.seats.map(nameOf).join(' / ');
+  return `{\n  "_players": ${JSON.stringify(names)},\n` +
+    Object.entries(head).map(([k, v]) => `  ${JSON.stringify(k)}: ${JSON.stringify(v)},`).join('\n') +
+    `\n  "hands": [\n${g.hands.map(h => '    ' + JSON.stringify(h)).join(',\n')}\n  ]\n}\n`;
+}
+function fileName(g) {
+  const d = new Date(g.createdAt || Date.now());
+  const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
+  return `games/hanchan-${String(g.no).padStart(2, '0')}-${stamp}.json`;
+}
+
+/* ---------- events ---------- */
+function toggle(arr, v) { const i = arr.indexOf(v); i < 0 ? arr.push(v) : arr.splice(i, 1); }
+let armT;
+document.getElementById('app').addEventListener('change', e => {
+  if (e.target.id === 'f-han') { S.form.han = +e.target.value; render(); }
+  if (e.target.id === 'f-fu') { S.form.fu = +e.target.value; render(); }
+});
+document.getElementById('app').addEventListener('click', async e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  const act = b.dataset.act, F = S.form, g = S.draft, v = b.dataset.v != null ? +b.dataset.v : null;
+  switch (act) {
+    case 'create': {
+      const seats = [0, 1, 2, 3].map(i => document.getElementById('ng-s' + i).value);
+      if (seats.some(x => !x)) return toast('请为东南西北四家都选好选手。');
+      if (new Set(seats).size !== 4) return toast('同一位选手不能坐两个位置。');
+      S.draft = { no: +document.getElementById('ng-no').value, table: '', seats, hands: [], final: null, createdAt: Date.now(), scorer: document.getElementById('ng-scorer').value.trim() };
+      S.form = freshForm(); S.submitted = false; break;
+    }
+    case 'f-kind': S.form = { ...freshForm(), kind: b.dataset.v, han: F.han, fu: F.fu, riichi: F.riichi }; break;
+    case 'f-winner': F.winner = v; if (F.loser === v) F.loser = null; if (F.pao === v) F.pao = null; break;
+    case 'f-loser': F.loser = v; if (F.pao === v) F.pao = null; break;
+    case 'f-riichi': toggle(F.riichi, v); break;
+    case 'f-tenpai': toggle(F.tenpai, v); break;
+    case 'f-pao': F.pao = v < 0 ? null : v; break;
+    case 'add-hand': {
+      const c = candidate(); if (!c) return;
+      if (c.kind === 'manual') {
+        c.deltas = [0, 1, 2, 3].map(i => Math.round(+document.getElementById('f-d' + i).value || 0));
+        c.pen = [0, 1, 2, 3].map(i => +document.getElementById('f-p' + i).value || 0);
+        c.note = document.getElementById('f-note').value.trim();
+        if (!c.deltas.some(Boolean) && !c.pen.some(Boolean)) return toast('请填写点数变化或积分罚则。');
+      }
+      g.hands.push(c); S.form = freshForm();
+      const R = replay(g);
+      toast(R.done ? '已记录，本半庄终局。' : `已记录，下一局：${roundLabel(R.r, R.h)}`);
+      break;
+    }
+    case 'del-hand': g.hands.splice(+b.dataset.i, 1); break;
+    case 'edit-final': S.finalEdit = true; break;
+    case 'cancel-final': S.finalEdit = false; break;
+    case 'save-final': {
+      const vals = [0, 1, 2, 3].map(i => Math.round(+document.getElementById('fin' + i).value));
+      const sum = vals.reduce((a, c) => a + c, 0);
+      if (vals.some(x => !Number.isFinite(x))) return toast('请填写四家的点数。');
+      if (sum !== 100000) return toast(`四家合计是 ${sum}，应为 100000。`);
+      g.final = vals; S.finalEdit = false; break;
+    }
+    case 'clear-final': g.final = null; S.finalEdit = false; break;
+    case 'submit': {
+      const url = `https://github.com/${REPO}/new/main?filename=${encodeURIComponent(fileName(g))}&value=${encodeURIComponent(gameJSON(g))}`;
+      window.open(url, '_blank', 'noopener');
+      S.submitted = true; break;
+    }
+    case 'copy':
+      try { await navigator.clipboard.writeText(gameJSON(g)); toast('已复制。'); }
+      catch { const r = document.createRange(); r.selectNodeContents(document.getElementById('json')); getSelection().removeAllRanges(); getSelection().addRange(r); toast('请按 Ctrl/⌘+C 复制选中的内容。'); }
+      return;
+    case 'new':
+      if (S.armed !== 'new') { S.armed = 'new'; clearTimeout(armT); armT = setTimeout(() => { S.armed = null; render(); }, 4000); break; }
+      S.armed = null; S.draft = null; S.submitted = false; S.finalEdit = false; break;
+    default: return;
+  }
+  save(); render();
+});
+
+(async () => {
+  load();
+  try {
+    const d = await (await fetch('data.json', { cache: 'no-store' })).json();
+    S.roster = d.roster || []; S.published = d.games || [];
+  } catch {
+    document.getElementById('banner').innerHTML = `<div class="banner warn">选手名单读不出来，请刷新页面。</div>`;
+  }
+  render();
+})();
+</script>
+</body>
+</html>

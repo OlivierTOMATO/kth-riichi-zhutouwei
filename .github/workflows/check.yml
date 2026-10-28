@@ -1,0 +1,29 @@
+# Checks a submitted game and shows its result in the pull request's checks tab.
+# The checker scripts come from main, so only the submitted JSON is read from the pull request.
+name: Check submitted game
+on:
+  pull_request:
+    paths: ["games/**"]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find submitted games
+        id: files
+        env:
+          BASE: ${{ github.base_ref }}
+        run: |
+          git fetch --depth=1 origin "$BASE"
+          git diff --name-only --diff-filter=AM "origin/$BASE" HEAD -- 'games/*.json' \
+            | grep -E '^games/[A-Za-z0-9._-]+\.json$' > files.txt || true
+          for f in scoring.js roster.json tools/build.py tools/summary.js; do git show "origin/$BASE:$f" > "$f"; done
+          echo "count=$(wc -l < files.txt)" >> "$GITHUB_OUTPUT"
+      - name: Validate
+        if: steps.files.outputs.count != '0'
+        run: xargs python3 tools/build.py --check < files.txt
+      - name: Summary
+        if: steps.files.outputs.count != '0'
+        run: xargs node tools/summary.js < files.txt >> "$GITHUB_STEP_SUMMARY"

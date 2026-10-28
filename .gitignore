@@ -1,2 +1,4 @@
 .export/
 .DS_Store
+_site/
+data.json

@@ -26,4 +26,4 @@ jobs:
         run: xargs python3 tools/build.py --check < files.txt
       - name: Summary
         if: steps.files.outputs.count != '0'
-        run: xargs node tools/summary.js < files.txt >> "$GITHUB_STEP_SUMMARY"
+        run: xargs node tools/summary.js < files.txt | tee -a "$GITHUB_STEP_SUMMARY"

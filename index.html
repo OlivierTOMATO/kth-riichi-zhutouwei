@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>猪头位 · KTH 立直麻将公开赛</title>
+<meta name="description" content="KTH 立直麻将公开赛「猪头位」排行榜与牌谱：M.LEAGUE 规则，16 个半庄。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+  html{color-scheme:light}
+  :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  body{margin:0}
+  .updated{font-size:12px;color:var(--muted)}
+  .hl.ro{grid-template-columns:7.5em 1fr}
+  @media (max-width:640px){.hl.ro{grid-template-columns:1fr}}
+  footer{margin-top:28px;font-size:12px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="seal" aria-hidden="true">猪</div>
+    <div class="htxt">
+      <h1>猪头位</h1>
+      <div class="sub">KTH 立直麻将公开赛 · M.LEAGUE 规则（有切上满贯）· 共 16 个半庄</div>
+    </div>
+    <div class="progress" id="progress"></div>
+  </header>
+  <nav id="tabs">
+    <button data-tab="board">排行榜</button>
+    <button data-tab="games">对局</button>
+  </nav>
+  <main id="app"><div class="empty">正在读取成绩…</div></main>
+  <footer id="foot"></footer>
+</div>
+
+<script src="scoring.js"></script>
+<script>
+const S = { roster: [], games: [], view: 'board', gameId: null, syncedAt: null };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const nameOf = id => (S.roster.find(p => p.id === id) || {}).name || '（已删除）';
+const fmtPt = v => (v > 0 ? '+' : '') + v.toFixed(1);
+const fmtD = v => v === 0 ? '0' : (v > 0 ? '+' : '') + v;
+const sign = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+const gameById = id => S.games.find(g => g.id === id);
+const sortedGames = () => S.games.slice().sort((a, b) => (a.no - b.no) || String(a.table || '').localeCompare(String(b.table || '')) || (a.createdAt || 0) - (b.createdAt || 0));
+
+function stats() {
+  const P = {};
+  for (const p of S.roster) P[p.id] = { id: p.id, name: p.name, n: 0, pt: 0, ranks: [0, 0, 0, 0], win: 0, dealin: 0, riichi: 0, hands: 0 };
+  let worst = null;
+  for (const g of S.games) {
+    const R = replay(g);
+    if (!R.done) continue;
+    g.seats.forEach((pid, i) => { const x = P[pid]; if (!x) return; x.n++; x.pt += R.pts[i]; x.ranks[R.rank[i]]++; });
+    for (const L of R.log) {
+      const hd = L.hd;
+      if (hd.kind === 'manual') continue;
+      g.seats.forEach(pid => P[pid] && P[pid].hands++);
+      (hd.riichi || []).forEach(i => P[g.seats[i]] && P[g.seats[i]].riichi++);
+      if (hd.kind === 'ron' || hd.kind === 'tsumo') { const x = P[g.seats[hd.winner]]; x && x.win++; }
+      if (L.dealIn) {
+        const x = P[g.seats[L.dealIn.seat]]; x && x.dealin++;
+        if (!worst || L.dealIn.points > worst.points) worst = { points: L.dealIn.points, pid: g.seats[L.dealIn.seat], to: g.seats[hd.winner], no: g.no, label: L.label, hand: handName(hd) };
+      }
+    }
+  }
+  const list = Object.values(P).map(x => ({ ...x, pt: Math.round(x.pt * 10) / 10, avg: x.n ? x.ranks.reduce((a, c, i) => a + c * (i + 1), 0) / x.n : null }));
+  list.sort((a, b) => (b.n > 0) - (a.n > 0) || b.pt - a.pt || (a.avg ?? 9) - (b.avg ?? 9));
+  return { list, worst };
+}
+
+function render() {
+  document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-current', String(b.dataset.tab === S.view)));
+  const dr = new Set(S.games.filter(g => replay(g).done).map(g => g.no));
+  document.getElementById('progress').innerHTML =
+    `<span class="lbl">已完成 <b class="num">${dr.size}</b> / ${TOTAL} 半庄</span>
+     <div class="pips" aria-hidden="true">${Array.from({ length: TOTAL }, (_, i) => `<span class="pip ${dr.has(i + 1) ? 'on' : ''}"></span>`).join('')}</div>`;
+  document.getElementById('foot').textContent = S.syncedAt ? `成绩更新于 ${new Date(S.syncedAt).toLocaleString('zh-CN', { hour12: false })}` : '';
+  const app = document.getElementById('app');
+  if (S.view === 'board') app.innerHTML = viewBoard();
+  else app.innerHTML = S.gameId && gameById(S.gameId) ? viewGame(gameById(S.gameId)) : viewGames();
+}
+
+function viewBoard() {
+  const { list, worst } = stats();
+  if (!S.roster.length) return `<div class="panel empty"><b>还没有成绩</b>第一个半庄结束后，这里会显示排行榜。</div>`;
+  const rows = list.map((x, i) => `<tr>
+      <td class="rk">${x.n ? i + 1 : '–'}</td>
+      <td>${esc(x.name)}${x.n && i < 3 ? `<span class="title t${i}">${TITLES[i]}</span>` : ''}</td>
+      <td class="num ${sign(x.pt)}"><b>${x.n ? fmtPt(x.pt) : '–'}</b></td>
+      <td class="num">${x.n}</td>
+      <td class="num">${x.ranks.join(' / ')}</td>
+      <td class="num">${x.avg != null ? x.avg.toFixed(2) : '–'}</td>
+      <td class="num">${x.hands ? (x.win / x.hands * 100).toFixed(1) + '%' : '–'}</td>
+      <td class="num">${x.hands ? (x.dealin / x.hands * 100).toFixed(1) + '%' : '–'}</td>
+      <td class="num">${x.riichi}</td></tr>`).join('');
+  const award = worst
+    ? `<div class="award"><div class="big">−${worst.points}</div><div><b>${esc(nameOf(worst.pid))}</b> 放铳给 ${esc(nameOf(worst.to))}<div class="muted small">第 ${worst.no} 半庄 · ${worst.label} · ${worst.hand}</div></div></div>`
+    : `<div class="muted small">还没有放铳记录。</div>`;
+  return `<section>
+    <div class="panel"><div class="tablewrap"><table>
+      <thead><tr><th>#</th><th>选手</th><th>总积分</th><th>半庄</th><th>1/2/3/4 位</th><th>平均顺位</th><th>和了率</th><th>放铳率</th><th>立直</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+      <p class="muted small" style="margin:12px 0 0">只计已终局的半庄。积分 =（终局点数 − 30000）/ 1000 + 顺位点（+50 / +10 / −10 / −30）；同点者平分顺位点，端数归离起家近的人；罚则（如错和 −20）另计。</p>
+    </div>
+    <div class="panel"><h3 style="margin-bottom:10px">最佳放铳奖</h3>${award}</div>
+  </section>`;
+}
+
+function viewGames() {
+  const gs = sortedGames();
+  if (!gs.length) return `<section><h2>对局</h2><div class="panel empty"><b>还没有对局</b>比赛开始后，这里会列出每个半庄。</div></section>`;
+  return `<section><h2>对局</h2><div class="games">${gs.map(g => {
+    const R = replay(g);
+    const st = R.done ? `<span class="chip done">已终局</span>` : `<span class="chip live">${g.hands && g.hands.length ? roundLabel(R.r, R.h) : '未开始'}</span>`;
+    const lines = g.seats.map((pid, i) => `<span class="w">${WINDS[i]}</span><span class="nm">${R.done ? `<span class="muted num">${R.rank[i] + 1}位</span> ` : ''}${esc(nameOf(pid))}</span><span class="num">${R.scores[i]}</span><span class="num ${R.done ? sign(R.pts[i]) : 'muted'}">${R.done ? fmtPt(R.pts[i]) : ''}</span>`).join('');
+    return `<button class="gcard" data-act="open-game" data-id="${esc(g.id)}">
+      <div class="top"><span class="gno">第 ${g.no} 半庄${g.table ? ` <span class="muted small">${esc(g.table)}</span>` : ''}</span>${st}</div>
+      <div class="glines">${lines}</div></button>`;
+  }).join('')}</div></section>`;
+}
+
+function viewGame(g) {
+  const R = replay(g), P = i => esc(nameOf(g.seats[i]));
+  const seats = g.seats.map((pid, i) => `<div class="seat ${!R.done && R.dealer === i ? 'dealer' : ''}">
+      ${!R.done && R.dealer === i ? '<span class="dtag">庄</span>' : ''}
+      <span class="wind">${WINDS[i]}</span><span class="who">${P(i)}</span>
+      <span class="sc">${R.scores[i]}</span>
+      <span class="meta num">${R.done ? `${R.rank[i] + 1}位 · <span class="${sign(R.pts[i])}">${fmtPt(R.pts[i])}</span>${R.pen[i] ? `（罚 ${R.pen[i]}）` : ''}` : `${R.scores[i] - START >= 0 ? '+' : ''}${R.scores[i] - START}`}</span>
+    </div>`).join('');
+  const log = R.log.length ? R.log.slice().reverse().map(L => {
+    const hd = L.hd;
+    let what = '';
+    if (hd.kind === 'ron') what = `<b>${P(hd.winner)}</b> 荣和 ${P(hd.loser)} · ${handName(hd)} ${L.value}`;
+    else if (hd.kind === 'tsumo') what = `<b>${P(hd.winner)}</b> 自摸 · ${handName(hd)}`;
+    else if (hd.kind === 'draw') what = `流局 · 听牌：${(hd.tenpai || []).length ? hd.tenpai.map(P).join('、') : '无'}`;
+    else what = `调整${hd.note ? ' · ' + esc(hd.note) : ''}${(hd.pen || []).some(Number) ? ' · 罚则 ' + hd.pen.map((v, i) => +v ? `${P(i)} ${v}` : '').filter(Boolean).join('、') : ''}`;
+    const rc = (hd.pao != null ? ` · 包牌：${P(hd.pao)}` : '') + ((hd.riichi || []).length ? ` · 立直：${hd.riichi.map(P).join('、')}` : '');
+    return `<div class="hl ro"><span class="rd">${L.label}</span><div>${what}${rc}<div class="ds">${L.d.map((v, i) => `${WINDS[i]}${fmtD(v)}`).join('  ')}</div></div></div>`;
+  }).join('') : `<div class="muted small">这个半庄没有逐局记录。</div>`;
+  return `<section>
+    <button class="back" data-act="back">← 全部对局</button>
+    <div class="ghead"><span class="gno">第 ${g.no} 半庄</span>${g.table ? `<span class="muted">${esc(g.table)}</span>` : ''}<span class="state">${R.done ? '终局' : roundLabel(R.r, R.h)}</span><span class="spacer"></span>
+      <div class="sticks"><span>本场 <b class="num">${R.done ? '–' : R.h}</b></span><span>供托 <b class="num">${R.pot}</b></span><span>已记录 <b class="num">${(g.hands || []).length}</b> 局</span></div></div>
+    <div class="board">${seats}</div>
+    ${g.final ? `<div class="banner">终局点数为直接录入。</div>` : ''}
+    <div class="panel"><h2 style="margin-bottom:8px">牌谱</h2><div class="hlog">${log}</div></div>
+  </section>`;
+}
+
+document.getElementById('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button[data-tab]'); if (!b) return;
+  S.view = b.dataset.tab; S.gameId = null; history.replaceState(null, '', '#' + S.view); render(); window.scrollTo(0, 0);
+});
+document.getElementById('app').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  if (b.dataset.act === 'open-game') { S.gameId = b.dataset.id; window.scrollTo(0, 0); }
+  if (b.dataset.act === 'back') S.gameId = null;
+  render();
+});
+
+(async () => {
+  const h = location.hash.slice(1);
+  if (h === 'games' || h === 'board') S.view = h;
+  try {
+    const d = await (await fetch('data.json', { cache: 'no-store' })).json();
+    S.roster = d.roster || []; S.games = d.games || []; S.syncedAt = d.syncedAt;
+    render();
+  } catch (e) {
+    document.getElementById('app').innerHTML = `<div class="panel empty"><b>成绩暂时读不出来</b>请稍后刷新页面。</div>`;
+  }
+})();
+</script>
+</body>
+</html>

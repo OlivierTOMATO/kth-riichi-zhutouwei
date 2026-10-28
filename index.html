@@ -4,58 +4,304 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>猪头位 · KTH 立直麻将公开赛</title>
-<meta name="description" content="KTH 立直麻将公开赛「猪头位」排行榜与牌谱：M.LEAGUE 规则，16 个半庄。">
+<meta name="description" content="KTH 立直麻将公开赛「猪头位」官方页面：M.LEAGUE 规则，16 个半庄，排行榜、个人数据、赛程与牌谱。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
-  html{color-scheme:light}
-  :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-  body{margin:0}
-  .updated{font-size:12px;color:var(--muted)}
-  .hl.ro{grid-template-columns:7.5em 1fr}
-  @media (max-width:640px){.hl.ro{grid-template-columns:1fr}}
-  footer{margin-top:28px;font-size:12px;color:var(--muted);text-align:center}
+/* Layout: full-bleed bands (hero, intro, ranking, stats, schedule, rules), each with a centred 1080px inner column.
+   The hero's match card draws the four players as standing mahjong tiles. */
+:root{
+  --bg:#eef2ee; --band:#e2e9e3; --surface:#fbfcf8; --line:#cfd9d1;
+  --ink:#141f19; --muted:#56665d;
+  --felt:#1b5640; --felt-2:#14402f; --felt-ink:#f1f7f2;
+  --aka:#c3302a; --gold:#9c6f12; --good:#1d7a4b; --bad:#b4372d;
+  --tile:#fbf8ef; --tile-edge:#d8d2bf;
+  --display:"ZCOOL KuaiLe","Noto Sans SC",system-ui,sans-serif;
+  --body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0d1611; --band:#121e17; --surface:#16231b; --line:#29392f;
+  --ink:#e4ebe6; --muted:#93a59a;
+  --felt:#17503b; --felt-2:#0f3a2a; --felt-ink:#eef6f0;
+  --aka:#e65a4d; --gold:#d9a83e; --good:#58c08a; --bad:#ef7a6c;
+  --tile:#ece7d8; --tile-edge:#b9b19a;
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--aka);outline-offset:3px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.in{max-width:1080px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.band{padding-block:64px}
+.band.alt{background:var(--band)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;color:var(--aka);font-weight:600}
+h2{font-family:var(--display);font-weight:400;font-size:40px;line-height:1.1;margin:6px 0 28px;text-wrap:balance}
+h3{font-size:15px;margin:0 0 12px;font-weight:700}
+.muted{color:var(--muted)} .small{font-size:13px}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+
+/* top bar */
+.bar{position:sticky;top:0;z-index:20;background:var(--felt-2);color:var(--felt-ink)}
+.bar .in{display:flex;align-items:center;gap:14px;height:56px}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none}
+.seal{width:34px;height:34px;border-radius:6px;background:var(--aka);color:#fff;display:grid;place-items:center;font-family:var(--display);font-size:22px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3)}
+.mark b{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.04em}
+.bar nav{margin-left:auto;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.bar nav a{text-decoration:none;font-size:14px;padding:6px 10px;border-radius:6px;white-space:nowrap;opacity:.85}
+.bar nav a:hover{opacity:1;background:rgba(255,255,255,.08)}
+
+/* hero */
+.hero{background:var(--felt);color:var(--felt-ink);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;opacity:.07;
+  background-image:repeating-linear-gradient(45deg,#fff 0 1px,transparent 1px 22px),repeating-linear-gradient(-45deg,#fff 0 1px,transparent 1px 22px)}
+.hero .in{position:relative;display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:center;padding-block:56px 64px}
+.hero .eyebrow{color:#ffd7cf}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(72px,12vw,132px);line-height:.95;margin:14px 0 18px;letter-spacing:.02em}
+.hero h1 .r{color:#ff8a7d}
+.hero p.lead{font-size:18px;max-width:30em;margin:0 0 24px;opacity:.92}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.facts span{border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:4px 12px;font-size:13px}
+
+.match{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:20px}
+.match .head{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.match .head b{font-family:var(--display);font-weight:400;font-size:26px}
+.match .head .st{font-size:13px;border-radius:999px;padding:2px 10px;background:var(--aka);color:#fff}
+.match .head .st.done{background:rgba(255,255,255,.18)}
+.match .head .meta{margin-left:auto;font-size:13px;opacity:.8}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tile{background:var(--tile);color:#1b1a14;border-radius:10px;padding:14px 10px 12px;text-align:center;position:relative;min-width:0;
+  box-shadow:0 6px 0 var(--tile-edge),0 7px 0 #2a6a50,0 14px 18px rgba(0,0,0,.25)}
+.tile .w{font-family:var(--display);font-size:30px;line-height:1;color:#1b1a14}
+.tile .w.d{color:#c3302a}
+.tile .n{font-weight:700;margin-top:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile .s{font-family:var(--mono);font-weight:600;font-size:18px;margin-top:2px}
+.tile .p{font-size:12px;color:#6a6555;font-family:var(--mono)}
+.tile .oya{position:absolute;top:8px;right:8px;font-size:11px;font-weight:700;color:#c3302a}
+.match .foot{display:flex;justify-content:space-between;margin-top:22px;font-size:13px;opacity:.85;gap:10px;flex-wrap:wrap}
+.match button.link{background:none;border:0;padding:0;color:#ffd7cf;text-decoration:underline;text-underline-offset:3px}
+
+/* intro */
+.intro{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:start}
+.intro .big{font-family:var(--display);font-size:32px;line-height:1.35;margin:0 0 18px;text-wrap:balance}
+.intro p{margin:0 0 14px;max-width:34em}
+.prizes{display:flex;flex-direction:column;gap:10px}
+.prize{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.prize .medal{width:56px;height:56px;border-radius:10px;display:grid;place-items:center;font-family:var(--display);font-size:24px;color:#fff}
+.prize b{font-family:var(--display);font-weight:400;font-size:22px;display:block;line-height:1.2}
+.m0{background:var(--aka)} .m1{background:var(--gold)} .m2{background:var(--felt)} .m3{background:var(--muted)}
+
+/* ranking */
+.rank{display:flex;flex-direction:column;gap:10px}
+.rrow{display:grid;grid-template-columns:64px 1fr repeat(3,minmax(84px,auto));gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 20px}
+.rrow.h{background:none;border:0;padding-block:0;font-size:12px;color:var(--muted);letter-spacing:.06em}
+.rrow .pos-n{font-family:var(--mono);font-size:30px;font-weight:600;line-height:1}
+.rrow.r1{border-color:var(--aka);box-shadow:inset 5px 0 0 var(--aka)}
+.rrow .who{font-weight:700;font-size:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.badge{font-family:var(--display);font-weight:400;font-size:13px;padding:1px 8px;border-radius:4px;color:#fff}
+.rrow .v{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.rrow .pt{font-size:22px;font-weight:600}
+.bars{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--band);margin-top:6px;max-width:220px}
+.bars i{display:block;height:100%}
+
+/* full table */
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-top:22px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:12px;font-weight:600;color:var(--muted);text-align:right;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;font-family:var(--mono);font-variant-numeric:tabular-nums}
+th:nth-child(-n+2),td:nth-child(-n+2){text-align:left}
+td:nth-child(2){font-family:var(--body);font-weight:600}
+tr:last-child td{border-bottom:0}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card h3{display:flex;justify-content:space-between;align-items:baseline}
+.card h3 small{font-weight:400;color:var(--muted);font-size:12px}
+.card ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.card li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;font-size:14px;align-items:baseline}
+.card li .i{font-family:var(--mono);color:var(--muted)}
+.card li:first-child{font-weight:700}
+.award{display:flex;flex-direction:column;gap:6px}
+.award .big{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--aka);line-height:1.1}
+
+/* schedule */
+.sched{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cell{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:92px}
+button.cell:hover{border-color:var(--felt)}
+.cell .no{font-family:var(--display);font-size:20px;line-height:1.1}
+.cell .tag{font-size:12px;color:var(--muted)}
+.cell.live{border-color:var(--aka)} .cell.live .tag{color:var(--aka);font-weight:700}
+.cell.done .no{color:var(--felt)}
+.cell.todo{background:none;border-style:dashed}
+.cell .top1{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* rules */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.rule{border-top:2px solid var(--felt);padding-top:10px}
+.rule b{display:block;font-size:14px}
+.rule span{font-size:14px;color:var(--muted)}
+
+footer{background:var(--felt-2);color:var(--felt-ink);padding-block:28px;font-size:13px}
+footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;opacity:.85}
+
+/* game detail */
+#detail{padding-block:32px 64px}
+.back{background:none;border:0;color:var(--muted);padding:0;margin-bottom:12px}
+.ghead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.ghead .gno{font-family:var(--display);font-size:32px}
+.ghead .state{font-family:var(--display);font-size:22px;color:var(--felt)}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.seat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:2px;position:relative;min-width:0}
+.seat.dealer{border-color:var(--aka);box-shadow:inset 0 3px 0 var(--aka)}
+.seat .wind{font-family:var(--display);font-size:22px;line-height:1}
+.seat .who{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat .sc{font-family:var(--mono);font-size:24px;font-weight:600}
+.seat .meta{font-size:12px;color:var(--muted)}
+.seat .dtag{position:absolute;top:10px;right:10px;font-size:11px;color:var(--aka);font-weight:700}
+.hl{display:grid;grid-template-columns:7.5em 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.hl:last-child{border-bottom:0}
+.hl .rd{font-size:13px;color:var(--muted)}
+.hl .ds{font-size:12px;color:var(--muted);font-family:var(--mono)}
+
+.empty{color:var(--muted);text-align:center;padding:28px 12px;border:1px dashed var(--line);border-radius:12px}
+
+@media (max-width:860px){
+  .hero .in,.intro{grid-template-columns:1fr;gap:32px}
+  .sched{grid-template-columns:repeat(2,1fr)}
+  .rrow{grid-template-columns:44px 1fr auto;gap:10px;padding:12px 14px}
+  .rrow .hide-s{display:none}
+  .rrow .pos-n{font-size:24px}
+  h2{font-size:32px}
+  .band{padding-block:48px}
+}
+@media (max-width:560px){
+  .tiles{gap:8px}
+  .tile{padding:12px 4px 10px}
+  .tile .w{font-size:24px}
+  .tile .s{font-size:15px}
+  .board{grid-template-columns:repeat(2,1fr)}
+  .hl{grid-template-columns:1fr;gap:2px}
+  .bar nav a{padding:6px 7px;font-size:13px}
+  .mark b{display:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div class="seal" aria-hidden="true">猪</div>
-    <div class="htxt">
-      <h1>猪头位</h1>
-      <div class="sub">KTH 立直麻将公开赛 · M.LEAGUE 规则（有切上满贯）· 共 16 个半庄</div>
-    </div>
-    <div class="progress" id="progress"></div>
-  </header>
-  <nav id="tabs">
-    <button data-tab="board">排行榜</button>
-    <button data-tab="games">对局</button>
+<div class="bar"><div class="in">
+  <a class="mark" href="#top" data-home><span class="seal" aria-hidden="true">猪</span><b>猪头位</b></a>
+  <nav>
+    <a href="#ranking" data-home>排行榜</a>
+    <a href="#stats" data-home>个人数据</a>
+    <a href="#schedule" data-home>赛程</a>
+    <a href="#rules" data-home>规则</a>
   </nav>
-  <main id="app"><div class="empty">正在读取成绩…</div></main>
-  <footer id="foot"></footer>
+</div></div>
+
+<div id="home">
+  <section class="hero" id="top"><div class="in">
+    <div>
+      <div class="eyebrow">KTH RIICHI OPEN · 第一届</div>
+      <h1>猪头<span class="r">位</span></h1>
+      <p class="lead">十六个半庄，四位雀士，一个头衔。累计积分最高的人，戴上第一代「猪头位」。</p>
+      <div class="facts"><span>M.LEAGUE 规则</span><span>有切上满贯</span><span>共 16 个半庄</span><span>KTH 校园</span></div>
+    </div>
+    <div class="match" id="match"><div class="head"><b>读取中…</b></div></div>
+  </div></section>
+
+  <section class="band"><div class="in intro">
+    <div>
+      <div class="eyebrow">ABOUT</div>
+      <h2>什么是猪头位</h2>
+      <p class="big">牌桌上没有永远的赢家，<br>但总有一个猪头。</p>
+      <p>猪头位是 KTH 立直麻将公开赛的头衔。四位选手按 M.LEAGUE 规则打满 16 个半庄，每个半庄按终局点数和顺位点计分，16 场累计积分决定最后的名次。</p>
+      <p class="muted">每一局都在 Claude 记分台实时记录，这里的成绩由记分台同步而来。</p>
+    </div>
+    <div class="prizes">
+      <div class="prize"><span class="medal m0">壹</span><div><b>猪头位</b><span class="muted small">总积分第 1 名，名字永载名人堂</span></div></div>
+      <div class="prize"><span class="medal m1">贰</span><div><b>猪头二号</b><span class="muted small">总积分第 2 名</span></div></div>
+      <div class="prize"><span class="medal m2">叁</span><div><b>猪头三号</b><span class="muted small">总积分第 3 名</span></div></div>
+      <div class="prize"><span class="medal m3">铳</span><div><b>最佳放铳奖</b><span class="muted small">全程单次放铳点数最大的选手</span></div></div>
+    </div>
+  </div></section>
+
+  <section class="band alt" id="ranking"><div class="in">
+    <div class="eyebrow">RANKING</div>
+    <h2>排行榜</h2>
+    <div class="rank" id="rank"></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>#</th><th>选手</th><th>总积分</th><th>半庄</th><th>1/2/3/4 位</th><th>平均顺位</th><th>和了率</th><th>放铳率</th><th>立直</th></tr></thead>
+      <tbody id="full"></tbody></table></div>
+    <p class="muted small" style="margin-top:14px">只计已终局的半庄。积分 =（终局点数 − 30000）/ 1000 + 顺位点（+50 / +10 / −10 / −30）；同点者平分顺位点；罚则（如错和 −20）另计。</p>
+  </div></section>
+
+  <section class="band" id="stats"><div class="in">
+    <div class="eyebrow">PLAYER STATS</div>
+    <h2>个人数据</h2>
+    <div class="stats" id="statcards"></div>
+  </div></section>
+
+  <section class="band alt" id="schedule"><div class="in">
+    <div class="eyebrow">SCHEDULE</div>
+    <h2>赛程</h2>
+    <div class="sched" id="sched"></div>
+  </div></section>
+
+  <section class="band" id="rules"><div class="in">
+    <div class="eyebrow">RULES</div>
+    <h2>比赛规则</h2>
+    <div class="rules">
+      <div class="rule"><b>点数</b><span>25000 点起，30000 点返</span></div>
+      <div class="rule"><b>顺位点</b><span>+50 / +10 / −10 / −30（含头名奖励），同点平分</span></div>
+      <div class="rule"><b>赤宝牌</b><span>万、筒、索的 5 各一枚，共 3 枚</span></div>
+      <div class="rule"><b>食断 · 后付</b><span>都可以</span></div>
+      <div class="rule"><b>切上满贯</b><span>4 番 30 符、3 番 60 符按满贯计</span></div>
+      <div class="rule"><b>役满</b><span>无数え役满，复合役满可以；大三元、大四喜、四杠子有包牌</span></div>
+      <div class="rule"><b>和牌</b><span>头跳，没有双响</span></div>
+      <div class="rule"><b>流局</b><span>没有途中流局，没有流局满贯；听牌料共 3000 点</span></div>
+      <div class="rule"><b>半庄</b><span>东南战，没有西入，没有击飞；南 4 局没有和了止め</span></div>
+      <div class="rule"><b>供托</b><span>流局终局时归第 1 名</span></div>
+      <div class="rule"><b>错和</b><span>积分 −20，本局重打</span></div>
+    </div>
+  </div></section>
 </div>
+
+<main id="detail" hidden><div class="in" id="detailIn"></div></main>
+
+<footer><div class="in">
+  <span>猪头位 · KTH 立直麻将公开赛</span>
+  <span id="synced"></span>
+</div></footer>
 
 <script src="scoring.js"></script>
 <script>
-const S = { roster: [], games: [], view: 'board', gameId: null, syncedAt: null };
+const S = { roster: [], games: [], syncedAt: null };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const nameOf = id => (S.roster.find(p => p.id === id) || {}).name || '（已删除）';
 const fmtPt = v => (v > 0 ? '+' : '') + v.toFixed(1);
 const fmtD = v => v === 0 ? '0' : (v > 0 ? '+' : '') + v;
 const sign = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
-const gameById = id => S.games.find(g => g.id === id);
-const sortedGames = () => S.games.slice().sort((a, b) => (a.no - b.no) || String(a.table || '').localeCompare(String(b.table || '')) || (a.createdAt || 0) - (b.createdAt || 0));
+const MEDAL = ['var(--aka)', 'var(--gold)', 'var(--felt)'];
 
 function stats() {
   const P = {};
-  for (const p of S.roster) P[p.id] = { id: p.id, name: p.name, n: 0, pt: 0, ranks: [0, 0, 0, 0], win: 0, dealin: 0, riichi: 0, hands: 0 };
+  for (const p of S.roster) P[p.id] = { id: p.id, name: p.name, n: 0, pt: 0, ranks: [0, 0, 0, 0], win: 0, dealin: 0, riichi: 0, hands: 0, best: null };
   let worst = null;
   for (const g of S.games) {
     const R = replay(g);
     if (!R.done) continue;
-    g.seats.forEach((pid, i) => { const x = P[pid]; if (!x) return; x.n++; x.pt += R.pts[i]; x.ranks[R.rank[i]]++; });
+    g.seats.forEach((pid, i) => {
+      const x = P[pid]; if (!x) return;
+      x.n++; x.pt += R.pts[i]; x.ranks[R.rank[i]]++;
+      if (x.best == null || R.scores[i] > x.best) x.best = R.scores[i];
+    });
     for (const L of R.log) {
       const hd = L.hd;
       if (hd.kind === 'manual') continue;
@@ -73,58 +319,95 @@ function stats() {
   return { list, worst };
 }
 
-function render() {
-  document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-current', String(b.dataset.tab === S.view)));
-  const dr = new Set(S.games.filter(g => replay(g).done).map(g => g.no));
-  document.getElementById('progress').innerHTML =
-    `<span class="lbl">已完成 <b class="num">${dr.size}</b> / ${TOTAL} 半庄</span>
-     <div class="pips" aria-hidden="true">${Array.from({ length: TOTAL }, (_, i) => `<span class="pip ${dr.has(i + 1) ? 'on' : ''}"></span>`).join('')}</div>`;
-  document.getElementById('foot').textContent = S.syncedAt ? `成绩更新于 ${new Date(S.syncedAt).toLocaleString('zh-CN', { hour12: false })}` : '';
-  const app = document.getElementById('app');
-  if (S.view === 'board') app.innerHTML = viewBoard();
-  else app.innerHTML = S.gameId && gameById(S.gameId) ? viewGame(gameById(S.gameId)) : viewGames();
+function gamesByNo() {
+  const m = {};
+  for (const g of S.games) (m[g.no] = m[g.no] || []).push(g);
+  for (const k in m) m[k].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+  return m;
 }
 
-function viewBoard() {
-  const { list, worst } = stats();
-  if (!S.roster.length) return `<div class="panel empty"><b>还没有成绩</b>第一个半庄结束后，这里会显示排行榜。</div>`;
-  const rows = list.map((x, i) => `<tr>
-      <td class="rk">${x.n ? i + 1 : '–'}</td>
-      <td>${esc(x.name)}${x.n && i < 3 ? `<span class="title t${i}">${TITLES[i]}</span>` : ''}</td>
-      <td class="num ${sign(x.pt)}"><b>${x.n ? fmtPt(x.pt) : '–'}</b></td>
-      <td class="num">${x.n}</td>
-      <td class="num">${x.ranks.join(' / ')}</td>
-      <td class="num">${x.avg != null ? x.avg.toFixed(2) : '–'}</td>
-      <td class="num">${x.hands ? (x.win / x.hands * 100).toFixed(1) + '%' : '–'}</td>
-      <td class="num">${x.hands ? (x.dealin / x.hands * 100).toFixed(1) + '%' : '–'}</td>
-      <td class="num">${x.riichi}</td></tr>`).join('');
-  const award = worst
-    ? `<div class="award"><div class="big">−${worst.points}</div><div><b>${esc(nameOf(worst.pid))}</b> 放铳给 ${esc(nameOf(worst.to))}<div class="muted small">第 ${worst.no} 半庄 · ${worst.label} · ${worst.hand}</div></div></div>`
-    : `<div class="muted small">还没有放铳记录。</div>`;
-  return `<section>
-    <div class="panel"><div class="tablewrap"><table>
-      <thead><tr><th>#</th><th>选手</th><th>总积分</th><th>半庄</th><th>1/2/3/4 位</th><th>平均顺位</th><th>和了率</th><th>放铳率</th><th>立直</th></tr></thead>
-      <tbody>${rows}</tbody></table></div>
-      <p class="muted small" style="margin:12px 0 0">只计已终局的半庄。积分 =（终局点数 − 30000）/ 1000 + 顺位点（+50 / +10 / −10 / −30）；同点者平分顺位点，端数归离起家近的人；罚则（如错和 −20）另计。</p>
-    </div>
-    <div class="panel"><h3 style="margin-bottom:10px">最佳放铳奖</h3>${award}</div>
-  </section>`;
+function renderMatch() {
+  const el = document.getElementById('match');
+  if (!S.games.length) {
+    el.innerHTML = `<div class="head"><b>第 1 半庄</b><span class="st done">即将开始</span></div>
+      <div class="tiles">${S.roster.slice(0, 4).map((p, i) => `<div class="tile"><div class="w">${WINDS[i]}</div><div class="n">${esc(p.name)}</div><div class="s">${START}</div><div class="p">座位待定</div></div>`).join('')}</div>
+      <div class="foot"><span>选手：${S.roster.map(p => esc(p.name)).join(' · ') || '待定'}</span></div>`;
+    return;
+  }
+  // current = latest unfinished game, else the most recent finished one
+  const sorted = S.games.slice().sort((a, b) => (b.no - a.no) || (b.createdAt || 0) - (a.createdAt || 0));
+  const g = sorted.find(x => !replay(x).done) || sorted[0];
+  const R = replay(g);
+  const st = R.done ? `<span class="st done">已终局</span>` : `<span class="st">进行中 · ${roundLabel(R.r, R.h)}</span>`;
+  const tiles = g.seats.map((pid, i) => {
+    const oya = !R.done && R.dealer === i;
+    return `<div class="tile">${oya ? '<span class="oya">庄</span>' : ''}<div class="w ${oya ? 'd' : ''}">${WINDS[i]}</div><div class="n">${esc(nameOf(pid))}</div><div class="s">${R.scores[i]}</div>
+      <div class="p">${R.done ? `${R.rank[i] + 1}位 ${fmtPt(R.pts[i])}` : `${R.scores[i] - START >= 0 ? '+' : ''}${R.scores[i] - START}`}</div></div>`;
+  }).join('');
+  el.innerHTML = `<div class="head"><b>第 ${g.no} 半庄</b>${st}<span class="meta">${R.done ? '' : `本场 ${R.h} · 供托 ${R.pot}`}</span></div>
+    <div class="tiles">${tiles}</div>
+    <div class="foot"><span>已记录 ${(g.hands || []).length} 局</span><button class="link" data-game="${esc(g.id)}">查看牌谱 →</button></div>`;
 }
 
-function viewGames() {
-  const gs = sortedGames();
-  if (!gs.length) return `<section><h2>对局</h2><div class="panel empty"><b>还没有对局</b>比赛开始后，这里会列出每个半庄。</div></section>`;
-  return `<section><h2>对局</h2><div class="games">${gs.map(g => {
-    const R = replay(g);
-    const st = R.done ? `<span class="chip done">已终局</span>` : `<span class="chip live">${g.hands && g.hands.length ? roundLabel(R.r, R.h) : '未开始'}</span>`;
-    const lines = g.seats.map((pid, i) => `<span class="w">${WINDS[i]}</span><span class="nm">${R.done ? `<span class="muted num">${R.rank[i] + 1}位</span> ` : ''}${esc(nameOf(pid))}</span><span class="num">${R.scores[i]}</span><span class="num ${R.done ? sign(R.pts[i]) : 'muted'}">${R.done ? fmtPt(R.pts[i]) : ''}</span>`).join('');
-    return `<button class="gcard" data-act="open-game" data-id="${esc(g.id)}">
-      <div class="top"><span class="gno">第 ${g.no} 半庄${g.table ? ` <span class="muted small">${esc(g.table)}</span>` : ''}</span>${st}</div>
-      <div class="glines">${lines}</div></button>`;
-  }).join('')}</div></section>`;
+function renderRank(list) {
+  const el = document.getElementById('rank');
+  if (!list.length) { el.innerHTML = `<div class="empty">还没有选手。</div>`; return; }
+  const head = `<div class="rrow h"><span>名次</span><span>选手</span><span class="v">积分</span><span class="v hide-s">差距</span><span class="v hide-s">半庄</span></div>`;
+  el.innerHTML = head + list.map((x, i) => {
+    const prev = list[i - 1];
+    const gap = x.n && prev && prev.n ? (prev.pt - x.pt).toFixed(1) : '—';
+    const dist = x.n ? `<div class="bars" title="1/2/3/4 位次数">${x.ranks.map((c, k) => `<i style="width:${c / x.n * 100}%;background:${['var(--aka)', 'var(--gold)', 'var(--felt)', 'var(--muted)'][k]}"></i>`).join('')}</div>` : '';
+    return `<div class="rrow ${x.n && i === 0 ? 'r1' : ''}">
+      <span class="pos-n">${x.n ? i + 1 : '–'}</span>
+      <div><div class="who">${esc(x.name)}${x.n && i < 3 ? `<span class="badge" style="background:${MEDAL[i]}">${TITLES[i]}</span>` : ''}</div>${dist}</div>
+      <span class="v pt ${sign(x.pt)}">${x.n ? fmtPt(x.pt) : '—'}</span>
+      <span class="v hide-s muted">${i === 0 || !x.n ? '—' : gap}</span>
+      <span class="v hide-s">${x.n}/${TOTAL}</span>
+    </div>`;
+  }).join('');
 }
 
-function viewGame(g) {
+function renderFull(list) {
+  document.getElementById('full').innerHTML = list.map((x, i) => `<tr>
+    <td>${x.n ? i + 1 : '–'}</td><td>${esc(x.name)}</td>
+    <td class="${sign(x.pt)}"><b>${x.n ? fmtPt(x.pt) : '–'}</b></td>
+    <td>${x.n}</td><td>${x.ranks.join(' / ')}</td>
+    <td>${x.avg != null ? x.avg.toFixed(2) : '–'}</td>
+    <td>${x.hands ? (x.win / x.hands * 100).toFixed(1) + '%' : '–'}</td>
+    <td>${x.hands ? (x.dealin / x.hands * 100).toFixed(1) + '%' : '–'}</td>
+    <td>${x.riichi}</td></tr>`).join('');
+}
+
+function renderStats(list, worst) {
+  const played = list.filter(x => x.n);
+  const card = (title, unit, rows) => `<div class="card"><h3>${title}<small>${unit}</small></h3>${rows.length ? `<ol>${rows.map((r, i) => `<li><span class="i">${i + 1}</span><span>${esc(r[0])}</span><span class="num">${r[1]}</span></li>`).join('')}</ol>` : `<div class="muted small">第一个半庄结束后显示。</div>`}</div>`;
+  const by = (f, fmt) => played.slice().sort((a, b) => f(b) - f(a)).map(x => [x.name, fmt(f(x))]);
+  const html = [
+    card('最高得点', '单个半庄终局点数', by(x => x.best, v => v.toLocaleString('en-US'))),
+    card('一位次数', '次', by(x => x.ranks[0], v => v)),
+    card('四位回避率', '没吃四位的比例', by(x => 1 - x.ranks[3] / x.n, v => v.toFixed(4))),
+    card('和了率', '和了局数 / 参与局数', played.filter(x => x.hands).slice().sort((a, b) => b.win / b.hands - a.win / a.hands).map(x => [x.name, (x.win / x.hands * 100).toFixed(1) + '%'])),
+    card('立直次数', '次', by(x => x.riichi, v => v)),
+    `<div class="card"><h3>最佳放铳奖<small>单次放铳最大</small></h3>${worst
+      ? `<div class="award"><span class="big">−${worst.points.toLocaleString('en-US')}</span><span><b>${esc(nameOf(worst.pid))}</b> 放铳给 ${esc(nameOf(worst.to))}</span><span class="muted small">第 ${worst.no} 半庄 · ${worst.label} · ${worst.hand}</span></div>`
+      : `<div class="muted small">还没有放铳记录。</div>`}</div>`,
+  ];
+  document.getElementById('statcards').innerHTML = html.join('');
+}
+
+function renderSched() {
+  const m = gamesByNo();
+  document.getElementById('sched').innerHTML = Array.from({ length: TOTAL }, (_, k) => {
+    const no = k + 1, gs = m[no] || [];
+    if (!gs.length) return `<div class="cell todo"><span class="no">第 ${no} 半庄</span><span class="tag">未开始</span></div>`;
+    const g = gs[gs.length - 1], R = replay(g);
+    if (!R.done) return `<button class="cell live" data-game="${esc(g.id)}"><span class="no">第 ${no} 半庄</span><span class="tag">进行中 · ${roundLabel(R.r, R.h)}</span><span class="top1 muted">已记录 ${(g.hands || []).length} 局</span></button>`;
+    const top = R.rank.indexOf(0);
+    return `<button class="cell done" data-game="${esc(g.id)}"><span class="no">第 ${no} 半庄</span><span class="tag">已终局</span><span class="top1">1 位 <b>${esc(nameOf(g.seats[top]))}</b> <span class="num pos">${fmtPt(R.pts[top])}</span></span></button>`;
+  }).join('');
+}
+
+function renderGame(g) {
   const R = replay(g), P = i => esc(nameOf(g.seats[i]));
   const seats = g.seats.map((pid, i) => `<div class="seat ${!R.done && R.dealer === i ? 'dealer' : ''}">
       ${!R.done && R.dealer === i ? '<span class="dtag">庄</span>' : ''}
@@ -140,39 +423,49 @@ function viewGame(g) {
     else if (hd.kind === 'draw') what = `流局 · 听牌：${(hd.tenpai || []).length ? hd.tenpai.map(P).join('、') : '无'}`;
     else what = `调整${hd.note ? ' · ' + esc(hd.note) : ''}${(hd.pen || []).some(Number) ? ' · 罚则 ' + hd.pen.map((v, i) => +v ? `${P(i)} ${v}` : '').filter(Boolean).join('、') : ''}`;
     const rc = (hd.pao != null ? ` · 包牌：${P(hd.pao)}` : '') + ((hd.riichi || []).length ? ` · 立直：${hd.riichi.map(P).join('、')}` : '');
-    return `<div class="hl ro"><span class="rd">${L.label}</span><div>${what}${rc}<div class="ds">${L.d.map((v, i) => `${WINDS[i]}${fmtD(v)}`).join('  ')}</div></div></div>`;
+    return `<div class="hl"><span class="rd">${L.label}</span><div>${what}${rc}<div class="ds">${L.d.map((v, i) => `${WINDS[i]}${fmtD(v)}`).join('  ')}</div></div></div>`;
   }).join('') : `<div class="muted small">这个半庄没有逐局记录。</div>`;
-  return `<section>
-    <button class="back" data-act="back">← 全部对局</button>
-    <div class="ghead"><span class="gno">第 ${g.no} 半庄</span>${g.table ? `<span class="muted">${esc(g.table)}</span>` : ''}<span class="state">${R.done ? '终局' : roundLabel(R.r, R.h)}</span><span class="spacer"></span>
-      <div class="sticks"><span>本场 <b class="num">${R.done ? '–' : R.h}</b></span><span>供托 <b class="num">${R.pot}</b></span><span>已记录 <b class="num">${(g.hands || []).length}</b> 局</span></div></div>
+  document.getElementById('detailIn').innerHTML = `
+    <button class="back" data-back>← 返回首页</button>
+    <div class="ghead"><span class="gno">第 ${g.no} 半庄</span><span class="state">${R.done ? '终局' : roundLabel(R.r, R.h)}</span>
+      <span class="muted small">本场 ${R.done ? '–' : R.h} · 供托 ${R.pot} · 已记录 ${(g.hands || []).length} 局</span></div>
     <div class="board">${seats}</div>
-    ${g.final ? `<div class="banner">终局点数为直接录入。</div>` : ''}
-    <div class="panel"><h2 style="margin-bottom:8px">牌谱</h2><div class="hlog">${log}</div></div>
-  </section>`;
+    ${g.final ? `<p class="muted small">终局点数为直接录入。</p>` : ''}
+    <div class="card"><h3>牌谱</h3>${log}</div>`;
 }
 
-document.getElementById('tabs').addEventListener('click', e => {
-  const b = e.target.closest('button[data-tab]'); if (!b) return;
-  S.view = b.dataset.tab; S.gameId = null; history.replaceState(null, '', '#' + S.view); render(); window.scrollTo(0, 0);
-});
-document.getElementById('app').addEventListener('click', e => {
-  const b = e.target.closest('[data-act]'); if (!b) return;
-  if (b.dataset.act === 'open-game') { S.gameId = b.dataset.id; window.scrollTo(0, 0); }
-  if (b.dataset.act === 'back') S.gameId = null;
-  render();
+function showGame(id) {
+  const g = S.games.find(x => x.id === id); if (!g) return;
+  renderGame(g);
+  document.getElementById('home').hidden = true;
+  document.getElementById('detail').hidden = false;
+  window.scrollTo(0, 0);
+}
+function showHome(anchor) {
+  document.getElementById('detail').hidden = true;
+  document.getElementById('home').hidden = false;
+  if (anchor) document.querySelector(anchor)?.scrollIntoView();
+}
+
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-game]');
+  if (g) { showGame(g.dataset.game); return; }
+  if (e.target.closest('[data-back]')) { showHome('#schedule'); return; }
+  const h = e.target.closest('a[data-home]');
+  if (h && !document.getElementById('detail').hidden) { e.preventDefault(); showHome(h.getAttribute('href')); }
 });
 
 (async () => {
-  const h = location.hash.slice(1);
-  if (h === 'games' || h === 'board') S.view = h;
   try {
     const d = await (await fetch('data.json', { cache: 'no-store' })).json();
     S.roster = d.roster || []; S.games = d.games || []; S.syncedAt = d.syncedAt;
-    render();
   } catch (e) {
-    document.getElementById('app').innerHTML = `<div class="panel empty"><b>成绩暂时读不出来</b>请稍后刷新页面。</div>`;
+    document.getElementById('match').innerHTML = `<div class="head"><b>成绩暂时读不出来</b></div><p class="small">请稍后刷新页面。</p>`;
+    return;
   }
+  const { list, worst } = stats();
+  renderMatch(); renderRank(list); renderFull(list); renderStats(list, worst); renderSched();
+  if (S.syncedAt) document.getElementById('synced').textContent = `成绩更新于 ${new Date(S.syncedAt).toLocaleString('zh-CN', { hour12: false })}`;
 })();
 </script>
 </body>

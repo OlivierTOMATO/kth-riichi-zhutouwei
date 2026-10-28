@@ -1,5 +1,5 @@
 {
- "syncedAt": 1793204222223,
+ "syncedAt": 1793204903754,
  "roster": [
   {
    "id": "p_dean",
@@ -14,33 +14,9 @@
    "name": "Snowhite"
   },
   {
-   "id": "p_cj",
-   "name": "CJ"
+   "id": "p_lanslie",
+   "name": "Lanslie"
   }
  ],
- "games": [
-  {
-   "id": "mh8i0xiaikzzwp7ezwec",
-   "no": 1,
-   "table": "",
-   "seats": [
-    "p_dean",
-    "p_lihan",
-    "p_snowhite",
-    "p_cj"
-   ],
-   "hands": [
-    {
-     "winner": 0,
-     "loser": 1,
-     "han": 1,
-     "riichi": [],
-     "fu": 30,
-     "kind": "ron"
-    }
-   ],
-   "final": null,
-   "createdAt": 1793203694477
-  }
- ]
+ "games": []
 }

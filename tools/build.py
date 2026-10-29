@@ -10,6 +10,7 @@ Every game file is one hanchan, in the same shape the recorder page submits:
      "createdAt": ms, "scorer": "who recorded it"}
 """
 import argparse
+import hashlib
 import json
 import shutil
 import sys
@@ -164,8 +165,14 @@ def main():
     out = (ROOT / a.out).resolve()
     out.mkdir(parents=True, exist_ok=True)
     if out != ROOT:
+        # Stamp the shared script with a version so browsers never pair a new page with a cached old scoring.js.
+        ver = hashlib.sha1((ROOT / "scoring.js").read_bytes()).hexdigest()[:10]
         for name in STATIC:
-            shutil.copy(ROOT / name, out / name)
+            if name.endswith(".html"):
+                html = (ROOT / name).read_text().replace('src="scoring.js"', f'src="scoring.js?v={ver}"')
+                (out / name).write_text(html)
+            else:
+                shutil.copy(ROOT / name, out / name)
     data = {"syncedAt": int(time.time() * 1000), "roster": roster, "games": games}
     (out / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
     print(f"data.json: {len(roster)} players, {len(games)} games, {sum(len(g['hands']) for g in games)} hands -> {out}")

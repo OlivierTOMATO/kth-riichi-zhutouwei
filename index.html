@@ -96,7 +96,7 @@ h3{font-size:15px;margin:0 0 12px;font-weight:700}
 .prize{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
 .prize .medal{width:56px;height:56px;border-radius:10px;display:grid;place-items:center;font-family:var(--display);font-size:24px;color:#fff}
 .prize b{font-family:var(--display);font-weight:400;font-size:22px;display:block;line-height:1.2}
-.m0{background:var(--aka)} .m1{background:var(--gold)} .m2{background:var(--felt)} .m3{background:var(--muted)}
+.m0{background:var(--aka)} .m1{background:var(--gold)} .m2{background:var(--felt)} .m3{background:var(--muted)} .m4{background:var(--felt-2)}
 
 /* ranking */
 .rank{display:flex;flex-direction:column;gap:10px}
@@ -233,6 +233,7 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
       <div class="prize"><span class="medal m1">贰</span><div><b>猪头二号</b><span class="muted small">总积分第 2 名</span></div></div>
       <div class="prize"><span class="medal m2">叁</span><div><b>猪头三号</b><span class="muted small">总积分第 3 名</span></div></div>
       <div class="prize"><span class="medal m3">铳</span><div><b>最大野猪</b><span class="muted small">全程单次放铳点数最大的选手</span></div></div>
+      <div class="prize"><span class="medal m4">龟</span><div><b>最大乌龟</b><span class="muted small">全程放铳率最低的选手，最会缩头防守</span></div></div>
     </div>
   </div></section>
 
@@ -390,6 +391,7 @@ function renderFull(list) {
 
 function renderStats(list, worst) {
   const played = list.filter(x => x.n);
+  const turtle = played.filter(x => x.hands).sort((a, b) => a.dealin / a.hands - b.dealin / b.hands || b.hands - a.hands)[0];
   const card = (title, unit, rows) => `<div class="card"><h3>${title}<small>${unit}</small></h3>${rows.length ? `<ol>${rows.map((r, i) => `<li><span class="i">${i + 1}</span><span>${esc(r[0])}</span><span class="num">${r[1]}</span></li>`).join('')}</ol>` : `<div class="muted small">第一个半庄结束后显示。</div>`}</div>`;
   const by = (f, fmt) => played.slice().sort((a, b) => f(b) - f(a)).map(x => [x.name, fmt(f(x))]);
   const html = [
@@ -403,6 +405,9 @@ function renderStats(list, worst) {
     `<div class="card"><h3>最大野猪<small>单次放铳最大</small></h3>${worst
       ? `<div class="award"><span class="big">−${worst.points.toLocaleString('en-US')}</span><span><b>${esc(nameOf(worst.pid))}</b> 放铳给 ${esc(nameOf(worst.to))}</span><span class="muted small">第 ${worst.no} 半庄 · ${worst.label} · ${worst.hand}</span></div>`
       : `<div class="muted small">还没有放铳记录。</div>`}</div>`,
+    `<div class="card"><h3>最大乌龟<small>放铳率最低</small></h3>${turtle
+      ? `<div class="award"><span class="big" style="color:var(--felt)">${(turtle.dealin / turtle.hands * 100).toFixed(1)}%</span><span><b>${esc(turtle.name)}</b> 放铳 ${turtle.dealin} 次 / 参与 ${turtle.hands} 局</span><span class="muted small">同率时参与局数多者优先</span></div>`
+      : `<div class="muted small">第一个半庄结束后显示。</div>`}</div>`,
   ];
   document.getElementById('statcards').innerHTML = html.join('');
 }

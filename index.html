@@ -241,7 +241,7 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
     <h2>排行榜</h2>
     <div class="rank" id="rank"></div>
     <div class="tablewrap"><table>
-      <thead><tr><th>#</th><th>选手</th><th>总积分</th><th>半庄</th><th>1/2/3/4 位</th><th>平均顺位</th><th>和了率</th><th>放铳率</th><th>立直</th></tr></thead>
+      <thead><tr><th>#</th><th>选手</th><th>总积分</th><th>半庄</th><th>1/2/3/4 位</th><th>平均顺位</th><th>和了率</th><th>平均打点</th><th>放铳率</th><th>平均放铳</th><th>立直</th></tr></thead>
       <tbody id="full"></tbody></table></div>
     <p class="muted small" style="margin-top:14px">只计已终局的半庄。积分 =（终局点数 − 30000）/ 1000 + 顺位马（+30 / +10 / −10 / −30），第 1 名另加头名奖励 +20（4 人各 5000 点的差额）；同点者平分；罚则（如错和 −20）另计。</p>
   </div></section>
@@ -296,7 +296,7 @@ const MEDAL = ['var(--aka)', 'var(--gold)', 'var(--felt)'];
 
 function stats() {
   const P = {};
-  for (const p of S.roster) P[p.id] = { id: p.id, name: p.name, backup: !!p.backup, n: 0, pt: 0, ranks: [0, 0, 0, 0], win: 0, dealin: 0, riichi: 0, hands: 0, best: null };
+  for (const p of S.roster) P[p.id] = { id: p.id, name: p.name, backup: !!p.backup, n: 0, pt: 0, ranks: [0, 0, 0, 0], win: 0, dealin: 0, winPts: 0, dealPts: 0, riichi: 0, hands: 0, best: null };
   let worst = null;
   for (const g of S.games) {
     const R = replay(g);
@@ -311,14 +311,17 @@ function stats() {
       if (hd.kind === 'manual') continue;
       g.seats.forEach(pid => P[pid] && P[pid].hands++);
       (hd.riichi || []).forEach(i => P[g.seats[i]] && P[g.seats[i]].riichi++);
-      if (hd.kind === 'ron' || hd.kind === 'tsumo') { const x = P[g.seats[hd.winner]]; x && x.win++; }
+      // 打点、放铳点都按牌面计：不含本场和供托（包牌时只计放铳者自己付的部分）
+      const pao = hd.han >= 13 && hd.pao != null && hd.pao !== hd.winner && hd.pao !== hd.loser;
+      if (hd.kind === 'ron' || hd.kind === 'tsumo') { const x = P[g.seats[hd.winner]]; if (x) { x.win++; x.winPts += hd.kind === 'ron' ? L.value : L.value - 300 * L.honba; } }
       if (L.dealIn) {
-        const x = P[g.seats[L.dealIn.seat]]; x && x.dealin++;
+        const x = P[g.seats[L.dealIn.seat]]; if (x) { x.dealin++; x.dealPts += pao ? L.dealIn.points : L.dealIn.points - 300 * L.honba; }
         if (!worst || L.dealIn.points > worst.points) worst = { points: L.dealIn.points, pid: g.seats[L.dealIn.seat], to: g.seats[hd.winner], no: g.no, label: L.label, hand: handName(hd) };
       }
     }
   }
-  const list = Object.values(P).map(x => ({ ...x, pt: Math.round(x.pt * 10) / 10, avg: x.n ? x.ranks.reduce((a, c, i) => a + c * (i + 1), 0) / x.n : null }));
+  const list = Object.values(P).map(x => ({ ...x, pt: Math.round(x.pt * 10) / 10, avg: x.n ? x.ranks.reduce((a, c, i) => a + c * (i + 1), 0) / x.n : null,
+    avgWin: x.win ? x.winPts / x.win : null, avgDeal: x.dealin ? x.dealPts / x.dealin : null }));
   // 替补不参与头衔排名，排在最后
   list.sort((a, b) => a.backup - b.backup || (b.n > 0) - (a.n > 0) || b.pt - a.pt || (a.avg ?? 9) - (b.avg ?? 9));
   return { list, worst };
@@ -379,7 +382,9 @@ function renderFull(list) {
     <td>${x.n}</td><td>${x.ranks.join(' / ')}</td>
     <td>${x.avg != null ? x.avg.toFixed(2) : '–'}</td>
     <td>${x.hands ? (x.win / x.hands * 100).toFixed(1) + '%' : '–'}</td>
+    <td>${x.avgWin != null ? Math.round(x.avgWin).toLocaleString('en-US') : '–'}</td>
     <td>${x.hands ? (x.dealin / x.hands * 100).toFixed(1) + '%' : '–'}</td>
+    <td>${x.avgDeal != null ? Math.round(x.avgDeal).toLocaleString('en-US') : '–'}</td>
     <td>${x.riichi}</td></tr>`).join('');
 }
 
@@ -392,6 +397,8 @@ function renderStats(list, worst) {
     card('一位次数', '次', by(x => x.ranks[0], v => v)),
     card('四位回避率', '没吃四位的比例', by(x => 1 - x.ranks[3] / x.n, v => v.toFixed(4))),
     card('和了率', '和了局数 / 参与局数', played.filter(x => x.hands).slice().sort((a, b) => b.win / b.hands - a.win / a.hands).map(x => [x.name, (x.win / x.hands * 100).toFixed(1) + '%'])),
+    card('平均打点', '每次和了的点数，不含本场、供托', played.filter(x => x.win).slice().sort((a, b) => b.avgWin - a.avgWin).map(x => [x.name, Math.round(x.avgWin).toLocaleString('en-US')])),
+    card('平均放铳', '每次放铳的点数，越低越好', played.filter(x => x.dealin).slice().sort((a, b) => a.avgDeal - b.avgDeal).map(x => [x.name, Math.round(x.avgDeal).toLocaleString('en-US')])),
     card('立直次数', '次', by(x => x.riichi, v => v)),
     `<div class="card"><h3>最佳放铳奖<small>单次放铳最大</small></h3>${worst
       ? `<div class="award"><span class="big">−${worst.points.toLocaleString('en-US')}</span><span><b>${esc(nameOf(worst.pid))}</b> 放铳给 ${esc(nameOf(worst.to))}</span><span class="muted small">第 ${worst.no} 半庄 · ${worst.label} · ${worst.hand}</span></div>`

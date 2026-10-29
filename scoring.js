@@ -86,7 +86,7 @@ function replay(game) {
       for (let i = 0; i < 4; i++) { d[i] += +(hd.deltas || [])[i] || 0; pen[i] += +(hd.pen || [])[i] || 0; }
     }
     for (let i = 0; i < 4; i++) s[i] += d[i];
-    log.push({ hd, label, dealer, d, dealIn, value });
+    log.push({ hd, label, dealer, d, dealIn, value, honba: h });
     if (hd.kind !== 'manual') {
       if (keep) h++;
       else { r++; h = draw ? h + 1 : 0; }

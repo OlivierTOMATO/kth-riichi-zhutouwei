@@ -5,11 +5,15 @@ Site: https://oliviertomato.github.io/kth-riichi-zhutouwei/ (M.LEAGUE rules, 切
 ## How results get onto the site
 
 1. A player opens **记录成绩** (`record.html`), records the hanchan hand by hand on one device,
-   and presses **提交审核** at the end. GitHub opens with a new file `games/hanchan-NN-….json`
-   already filled in; they propose it as a pull request (a free GitHub account is needed).
-2. The **Check submitted game** workflow validates the file and shows the final scores and
-   points in the pull request's checks summary.
-3. The organiser reviews and merges. **Deploy site** rebuilds `data.json` and publishes it.
+   and presses **发给主办方** at the end. That makes a link with the whole hanchan packed into it
+   (`record.html#g=…`), opens the phone's share sheet (WeChat etc.) or copies it. No account needed.
+2. The organiser opens the link. The recorder shows a review page: final scores, points, hand log,
+   and warnings (unknown player, not finished, already published). **发布到网站** opens GitHub with
+   `games/hanchan-NN-….json` filled in; the organiser commits it.
+3. **Deploy site** rebuilds `data.json` and publishes it.
+
+Players with a GitHub account can still use **在 GitHub 提交**, which proposes the file as a pull
+request; the **Check submitted game** workflow then shows the scores in the pull request's checks.
 
 ## Files
 

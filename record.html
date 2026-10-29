@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>记录成绩 · 猪头位</title>
-<meta name="description" content="猪头位记分页：逐局记录一个半庄，终局后提交到 GitHub 等待审核。">
+<meta name="description" content="猪头位记分页：逐局记录一个半庄，终局后发链接给主办方审核，不需要账号。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
@@ -178,7 +178,7 @@ header a.home{color:var(--muted);font-size:13px;text-decoration:none;white-space
     <div class="seal" aria-hidden="true">猪</div>
     <div class="htxt">
       <h1>记录成绩</h1>
-      <div class="sub">猪头位 · M.LEAGUE 规则（有切上满贯）· 终局后提交到 GitHub，审核通过后公布</div>
+      <div class="sub">猪头位 · M.LEAGUE 规则（有切上满贯）· 终局后发给主办方，审核通过后公布</div>
     </div>
     <a class="home" href="./">← 返回首页</a>
   </header>
@@ -191,7 +191,7 @@ header a.home{color:var(--muted);font-size:13px;text-decoration:none;white-space
 <script>
 const REPO = 'OlivierTOMATO/kth-riichi-zhutouwei';
 const KEY = 'zhutouwei-draft-v1';
-const S = { roster: [], published: [], draft: null, form: freshForm(), finalEdit: false, armed: null, submitted: false };
+const S = { roster: [], published: [], draft: null, review: null, link: null, form: freshForm(), finalEdit: false, armed: null, submitted: false };
 function freshForm() { return { kind: 'ron', winner: null, loser: null, han: 1, fu: 30, pao: null, riichi: [], tenpai: [] }; }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const nameOf = id => (S.roster.find(p => p.id === id) || {}).name || id;
@@ -210,8 +210,9 @@ function render() {
   const keep = {};
   document.querySelectorAll('#app input[id], #app select[id]').forEach(el => keep[el.id] = el.value);
   const app = document.getElementById('app');
-  app.innerHTML = S.draft ? viewGame(S.draft) : viewSetup();
+  app.innerHTML = S.review ? viewReview() : S.draft ? viewGame(S.draft) : viewSetup();
   for (const [id, v] of Object.entries(keep)) { const el = document.getElementById(id); if (el && el.dataset.fresh == null) el.value = v; }
+  refreshLink();
 }
 
 function viewSetup() {
@@ -234,7 +235,7 @@ function viewSetup() {
         <li>选好第几个半庄和东南西北四家，点「开始记录」。</li>
         <li>每局结束后选结果（荣和、自摸、流局），点「记录」。局数、本场、供托都会自动计算。</li>
         <li>记录保存在这台设备上，刷新页面不会丢。请一桌只用一台设备记录。</li>
-        <li>南 4 局结束后点「提交审核」：会打开 GitHub，登录后按提示提交。主办方审核通过后，成绩会出现在首页。</li>
+        <li>终局后点「发给主办方」，把链接用微信等发出去，不需要任何账号。主办方核对后发布，成绩就会出现在首页。</li>
       </ol>
     </div>
   </section>`;
@@ -246,12 +247,7 @@ function seg(name, opts) {
 
 function viewGame(g) {
   const R = replay(g), F = S.form, P = i => esc(nameOf(g.seats[i]));
-  const seats = g.seats.map((pid, i) => `<div class="seat ${!R.done && R.dealer === i ? 'dealer' : ''}">
-      ${!R.done && R.dealer === i ? '<span class="dtag">庄</span>' : ''}
-      <span class="wind">${WINDS[i]}</span><span class="who">${P(i)}</span>
-      <span class="sc">${R.scores[i]}</span>
-      <span class="meta num">${R.done ? `${R.rank[i] + 1}位 · <span class="${sign(R.pts[i])}">${fmtPt(R.pts[i])}</span>${R.pen[i] ? `（罚 ${R.pen[i]}）` : ''}` : `${R.scores[i] - START >= 0 ? '+' : ''}${R.scores[i] - START}`}</span>
-    </div>`).join('');
+  const seats = seatsHTML(g, R);
 
   let entry = '';
   if (!R.done) {
@@ -294,23 +290,19 @@ function viewGame(g) {
       <div class="row" style="margin-top:12px"><button class="btn primary" data-act="save-final">保存终局点数</button><button class="btn" data-act="cancel-final">取消</button>${g.final ? `<button class="btn danger" data-act="clear-final">清除，改回逐局计算</button>` : ''}</div></div>`;
   }
 
-  const log = R.log.length ? R.log.slice().reverse().map((L, k) => {
-    const idx = R.log.length - 1 - k, hd = L.hd;
-    let what = '';
-    if (hd.kind === 'ron') what = `<b>${P(hd.winner)}</b> 荣和 ${P(hd.loser)} · ${handName(hd)} ${L.value}`;
-    else if (hd.kind === 'tsumo') what = `<b>${P(hd.winner)}</b> 自摸 · ${handName(hd)}`;
-    else if (hd.kind === 'draw') what = `流局 · 听牌：${(hd.tenpai || []).length ? hd.tenpai.map(P).join('、') : '无'}`;
-    else what = `调整${hd.note ? ' · ' + esc(hd.note) : ''}${(hd.pen || []).some(Number) ? ' · 罚则 ' + hd.pen.map((v, i) => +v ? `${P(i)} ${v}` : '').filter(Boolean).join('、') : ''}`;
-    const rc = (hd.pao != null ? ` · 包牌：${P(hd.pao)}` : '') + ((hd.riichi || []).length ? ` · 立直：${hd.riichi.map(P).join('、')}` : '');
-    return `<div class="hl"><span class="rd">${L.label}</span><div>${what}${rc}<div class="ds">${L.d.map((v, i) => `${WINDS[i]}${fmtD(v)}`).join('  ')}</div></div><button class="x" data-act="del-hand" data-i="${idx}" aria-label="删除这一局">删除</button></div>`;
-  }).join('') : `<div class="muted small">还没有记录。从东1局开始，每局结束后在上面选择结果并点「记录」。</div>`;
+  const log = logHTML(g, R, true);
 
   const json = gameJSON(g);
-  const submit = `<div class="panel"><h2 style="margin-bottom:6px">提交审核</h2>
-    ${R.done ? `<p class="small" style="margin:0 0 12px">终局了。点「提交审核」会打开 GitHub 并自动填好这个半庄的记录：登录后点 <b>Propose new file</b>（或 Commit changes），再点 <b>Create pull request</b>。主办方审核合并后，成绩会出现在首页。</p>
-      <div class="row"><button class="btn primary" data-act="submit">提交审核</button><button class="btn" data-act="copy">复制记录（备用）</button></div>
-      ${S.submitted ? `<p class="small muted" style="margin:12px 0 0">已打开 GitHub。提交成功后，点下面的「开始新的半庄」清空这台设备上的记录。</p>` : ''}
-      <details style="margin-top:12px"><summary class="small muted">查看将要提交的内容</summary><div class="code" id="json">${esc(json)}</div></details>`
+  const link = S.link && S.link.key === linkKey(g) ? S.link.url : '';
+  const submit = `<div class="panel"><h2 style="margin-bottom:6px">提交成绩</h2>
+    ${R.done ? `<p class="small" style="margin:0 0 12px">终局了。点「发给主办方」，把链接用微信等发给主办方就行，<b>不需要任何账号</b>。主办方打开链接核对后发布，成绩就会出现在首页。</p>
+      <div class="row"><button class="btn primary" data-act="share" ${link ? '' : 'disabled'}>发给主办方</button><button class="btn" data-act="copy-link" ${link ? '' : 'disabled'}>复制链接</button></div>
+      <div class="code" id="share-url" style="margin-top:10px">${link ? esc(link) : '正在生成链接…'}</div>
+      ${S.submitted ? `<p class="small muted" style="margin:12px 0 0">发出去之后，点下面的「开始新的半庄」清空这台设备上的记录。</p>` : ''}
+      <details style="margin-top:12px"><summary class="small muted">有 GitHub 账号？也可以直接提交</summary>
+        <p class="small" style="margin:10px 0">点「在 GitHub 提交」会打开 GitHub 并自动填好这个半庄的记录：登录后点 <b>Propose new file</b>，再点 <b>Create pull request</b>。</p>
+        <div class="row"><button class="btn" data-act="submit">在 GitHub 提交</button><button class="btn" data-act="copy">复制记录</button></div>
+        <div class="code" id="json" style="margin-top:10px">${esc(json)}</div></details>`
       : `<p class="muted small" style="margin:0">南 4 局结束（或直接录入终局点数）后才能提交。</p>`}
   </div>`;
 
@@ -325,6 +317,126 @@ function viewGame(g) {
       <div class="hlog">${log}</div></div>
     <div class="row"><span class="muted small">记录人：${esc(g.scorer || '未填写')}</span><span class="spacer"></span><button class="btn sm danger ${armedNew ? 'armed' : ''}" data-act="new">${armedNew ? '再点一次：清空并开始新的半庄' : '开始新的半庄'}</button></div>
   </section>`;
+}
+
+function seatsHTML(g, R) {
+  const P = i => esc(nameOf(g.seats[i]));
+  return g.seats.map((pid, i) => `<div class="seat ${!R.done && R.dealer === i ? 'dealer' : ''}">
+      ${!R.done && R.dealer === i ? '<span class="dtag">庄</span>' : ''}
+      <span class="wind">${WINDS[i]}</span><span class="who">${P(i)}</span>
+      <span class="sc">${R.scores[i]}</span>
+      <span class="meta num">${R.done ? `${R.rank[i] + 1}位 · <span class="${sign(R.pts[i])}">${fmtPt(R.pts[i])}</span>${R.pen[i] ? `（罚 ${R.pen[i]}）` : ''}` : `${R.scores[i] - START >= 0 ? '+' : ''}${R.scores[i] - START}`}</span>
+    </div>`).join('');
+}
+function logHTML(g, R, editable) {
+  const P = i => esc(nameOf(g.seats[i]));
+  return R.log.length ? R.log.slice().reverse().map((L, k) => {
+    const idx = R.log.length - 1 - k, hd = L.hd;
+    let what = '';
+    if (hd.kind === 'ron') what = `<b>${P(hd.winner)}</b> 荣和 ${P(hd.loser)} · ${handName(hd)} ${L.value}`;
+    else if (hd.kind === 'tsumo') what = `<b>${P(hd.winner)}</b> 自摸 · ${handName(hd)}`;
+    else if (hd.kind === 'draw') what = `流局 · 听牌：${(hd.tenpai || []).length ? hd.tenpai.map(P).join('、') : '无'}`;
+    else what = `调整${hd.note ? ' · ' + esc(hd.note) : ''}${(hd.pen || []).some(Number) ? ' · 罚则 ' + hd.pen.map((v, i) => +v ? `${P(i)} ${v}` : '').filter(Boolean).join('、') : ''}`;
+    const rc = (hd.pao != null ? ` · 包牌：${P(hd.pao)}` : '') + ((hd.riichi || []).length ? ` · 立直：${hd.riichi.map(P).join('、')}` : '');
+    return `<div class="hl"><span class="rd">${L.label}</span><div>${what}${rc}<div class="ds">${L.d.map((v, i) => `${WINDS[i]}${fmtD(v)}`).join('  ')}</div></div>${editable ? `<button class="x" data-act="del-hand" data-i="${idx}" aria-label="删除这一局">删除</button>` : ''}</div>`;
+  }).join('') : `<div class="muted small">还没有记录。从东1局开始，每局结束后在上面选择结果并点「记录」。</div>`;
+}
+
+/* ---------- share link: the whole hanchan travels in the URL (#g=…), no account needed ---------- */
+const minGame = g => ({ no: g.no, seats: g.seats, hands: g.hands, final: g.final || null, createdAt: g.createdAt, scorer: g.scorer || '' });
+const linkKey = g => JSON.stringify(minGame(g));
+const b64u = bytes => { let t = ''; for (const c of bytes) t += String.fromCharCode(c); return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+const pipe = async (bytes, stream) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
+async function packGame(g) {
+  const raw = new TextEncoder().encode(linkKey(g));
+  if (typeof CompressionStream === 'function') { try { return 'z' + b64u(await pipe(raw, new CompressionStream('deflate-raw'))); } catch {} }
+  return 'j' + b64u(raw);
+}
+async function unpackGame(code) {
+  let bytes = unb64u(code.slice(1));
+  if (code[0] === 'z') bytes = await pipe(bytes, new DecompressionStream('deflate-raw'));
+  else if (code[0] !== 'j') throw new Error('bad prefix');
+  return cleanGame(JSON.parse(new TextDecoder().decode(bytes)));
+}
+// A link can come from anyone: rebuild the game from typed fields only (mirrors tools/build.py).
+function cleanGame(x) {
+  const int = (v, lo, hi) => { v = Number(v); if (!Number.isInteger(v) || v < lo || v > hi) throw new Error('bad number'); return v; };
+  const seatList = v => [...new Set((Array.isArray(v) ? v : []).map(i => int(i, 0, 3)))].sort();
+  if (!x || !Array.isArray(x.seats) || x.seats.length !== 4 || !Array.isArray(x.hands)) throw new Error('missing fields');
+  const hands = x.hands.map(h => {
+    const k = h && h.kind, o = { kind: k };
+    if (k === 'ron' || k === 'tsumo') {
+      o.winner = int(h.winner, 0, 3);
+      if (k === 'ron') o.loser = int(h.loser, 0, 3);
+      o.han = int(h.han, 1, 39); o.fu = int(h.fu ?? 30, 20, 110);
+      if (h.pao != null) o.pao = int(h.pao, 0, 3);
+      o.riichi = seatList(h.riichi);
+    } else if (k === 'draw') { o.tenpai = seatList(h.tenpai); o.riichi = seatList(h.riichi); }
+    else if (k === 'manual') {
+      o.deltas = [0, 1, 2, 3].map(i => Number((h.deltas || [])[i]) || 0);
+      o.pen = [0, 1, 2, 3].map(i => Number((h.pen || [])[i]) || 0);
+      if (h.note) o.note = String(h.note).slice(0, 80);
+    } else throw new Error('bad hand');
+    return o;
+  });
+  const final = Array.isArray(x.final) && x.final.length === 4 ? x.final.map(v => int(v, -1e6, 1e6)) : null;
+  return { no: int(x.no, 1, TOTAL), table: '', seats: x.seats.map(v => String(v).slice(0, 40)), hands, final,
+    createdAt: Number(x.createdAt) || Date.now(), scorer: String(x.scorer || '').slice(0, 40) };
+}
+async function refreshLink() {
+  const g = S.draft; if (!g || !replay(g).done) return;
+  const key = linkKey(g); if (S.link && S.link.key === key) return;
+  const url = location.origin + location.pathname + '#g=' + await packGame(g);
+  if (S.draft !== g || linkKey(g) !== key) return;
+  S.link = { key, url }; render();
+}
+function summaryText(g) {
+  const R = replay(g), order = [0, 1, 2, 3].sort((a, b) => R.rank[a] - R.rank[b]);
+  return `猪头位 · 第 ${g.no} 半庄成绩${g.scorer ? `（记录人：${g.scorer}）` : ''}\n` +
+    order.map(i => `${R.rank[i] + 1}位 ${nameOf(g.seats[i])} ${R.scores[i]}（${fmtPt(R.pts[i])}）`).join('\n') + '\n打开链接核对并发布：';
+}
+async function copyText(t) { try { await navigator.clipboard.writeText(t); return true; } catch { return false; } }
+function selectEl(id) { const el = document.getElementById(id); if (!el) return; const r = document.createRange(); r.selectNodeContents(el); getSelection().removeAllRanges(); getSelection().addRange(r); }
+
+function viewReview() {
+  const { game: g, error } = S.review;
+  if (error) return `<section><div class="panel"><h2 style="margin-bottom:8px">这个链接打不开</h2>
+    <p class="small" style="margin:0 0 12px">链接可能被截断了，请让对方重新发一次（或用「复制链接」整段复制）。</p>
+    <button class="btn" data-act="close-review">去记录页</button></div></section>`;
+  const R = replay(g), known = new Set(S.roster.map(p => p.id)), warn = [];
+  if (g.seats.some(id => !known.has(id))) warn.push('有选手不在名单里，不能发布。');
+  if (new Set(g.seats).size !== 4) warn.push('同一位选手出现在两个位置上。');
+  if (!R.done) warn.push('这个半庄还没有终局。');
+  if (g.final && g.final.reduce((a, c) => a + c, 0) !== 100000) warn.push('直接录入的终局点数合计不是 100000。');
+  const same = S.published.find(p => p.no === g.no && p.createdAt === g.createdAt);
+  if (same) warn.push('这份成绩已经公布过了，不需要再发布。');
+  else if (S.published.some(p => p.no === g.no)) warn.push(`第 ${g.no} 半庄已经有一份公布的成绩，请确认这不是重复提交。`);
+  const blocked = warn.length && (g.seats.some(id => !known.has(id)) || new Set(g.seats).size !== 4 || !R.done || same);
+  const armed = S.armed === 'take';
+  return `<section>
+    <div class="banner">这是选手发来的成绩，<b>还没有公布</b>。核对无误后点「发布到网站」（需要主办方的 GitHub 账号）。</div>
+    <div class="ghead"><span class="gno">第 ${g.no} 半庄</span><span class="state">${R.done ? '终局' : roundLabel(R.r, R.h)}</span><span class="spacer"></span>
+      <div class="sticks"><span>记录人 <b>${esc(g.scorer || '未填写')}</b></span><span>已记录 <b class="num">${g.hands.length}</b> 局</span></div></div>
+    <div class="board">${seatsHTML(g, R)}</div>
+    ${warn.map(w => `<div class="banner warn">${esc(w)}</div>`).join('')}
+    ${g.final ? `<div class="banner">终局点数为直接录入。</div>` : ''}
+    <div class="panel"><div class="row">
+      <button class="btn primary" data-act="publish" ${blocked ? 'disabled' : ''}>发布到网站</button>
+      <button class="btn" data-act="copy">复制记录</button>
+      <span class="spacer"></span>
+      <button class="btn sm ${armed ? 'danger armed' : ''}" data-act="take-review">${armed ? '再点一次：替换这台设备上的记录' : '在这台设备上修改'}</button>
+    </div>
+    <p class="muted small" style="margin:10px 0 0">「发布到网站」会打开 GitHub、填好文件，点 <b>Commit changes</b> 即可，几分钟后首页更新。</p>
+    <details style="margin-top:12px"><summary class="small muted">查看将要发布的内容</summary><div class="code" id="json">${esc(gameJSON(g))}</div></details></div>
+    <div class="panel"><h2 style="margin-bottom:8px">牌谱</h2><div class="hlog">${logHTML(g, R, false)}</div></div>
+    <div class="row"><span class="spacer"></span><button class="btn sm" data-act="close-review">关闭，去记录页</button></div>
+  </section>`;
+}
+async function readLink() {
+  const m = location.hash.match(/^#g=([A-Za-z0-9_-]+)$/);
+  if (!m) { S.review = null; return; }
+  try { S.review = { game: await unpackGame(m[1]) }; } catch { S.review = { error: true }; }
 }
 
 function candidate() {
@@ -406,13 +518,39 @@ document.getElementById('app').addEventListener('click', async e => {
       g.final = vals; S.finalEdit = false; break;
     }
     case 'clear-final': g.final = null; S.finalEdit = false; break;
+    case 'share': {
+      if (!S.link) return;
+      const text = summaryText(g), url = S.link.url;
+      if (navigator.share) {
+        try { await navigator.share({ title: `猪头位 · 第 ${g.no} 半庄`, text, url }); S.submitted = true; break; }
+        catch (err) { if (err && err.name === 'AbortError') return; }
+      }
+      if (await copyText(text + '\n' + url)) toast('已复制，粘贴到微信发给主办方即可。');
+      else { selectEl('share-url'); toast('请复制选中的链接，发给主办方。'); }
+      S.submitted = true; break;
+    }
+    case 'copy-link':
+      if (!S.link) return;
+      if (await copyText(summaryText(g) + '\n' + S.link.url)) toast('已复制，粘贴到微信发给主办方即可。');
+      else { selectEl('share-url'); toast('请按 Ctrl/⌘+C 复制选中的链接。'); }
+      S.submitted = true; break;
+    case 'publish': {
+      const r = S.review.game;
+      window.open(`https://github.com/${REPO}/new/main?filename=${encodeURIComponent(fileName(r))}&value=${encodeURIComponent(gameJSON(r))}`, '_blank', 'noopener');
+      return;
+    }
+    case 'take-review':
+      if (S.draft && S.armed !== 'take') { S.armed = 'take'; clearTimeout(armT); armT = setTimeout(() => { S.armed = null; render(); }, 4000); render(); return; }
+      S.armed = null; S.draft = JSON.parse(JSON.stringify(S.review.game)); S.form = freshForm(); S.submitted = false; S.finalEdit = false;
+      S.review = null; history.replaceState(null, '', location.pathname); break;
+    case 'close-review': S.review = null; history.replaceState(null, '', location.pathname); render(); return;
     case 'submit': {
       const url = `https://github.com/${REPO}/new/main?filename=${encodeURIComponent(fileName(g))}&value=${encodeURIComponent(gameJSON(g))}`;
       window.open(url, '_blank', 'noopener');
       S.submitted = true; break;
     }
     case 'copy':
-      try { await navigator.clipboard.writeText(gameJSON(g)); toast('已复制。'); }
+      try { await navigator.clipboard.writeText(gameJSON(S.review ? S.review.game : g)); toast('已复制。'); }
       catch { const r = document.createRange(); r.selectNodeContents(document.getElementById('json')); getSelection().removeAllRanges(); getSelection().addRange(r); toast('请按 Ctrl/⌘+C 复制选中的内容。'); }
       return;
     case 'new':
@@ -425,6 +563,7 @@ document.getElementById('app').addEventListener('click', async e => {
 
 (async () => {
   load();
+  await readLink();
   try {
     const d = await (await fetch('data.json', { cache: 'no-store' })).json();
     S.roster = d.roster || []; S.published = d.games || [];
@@ -433,6 +572,7 @@ document.getElementById('app').addEventListener('click', async e => {
   }
   render();
 })();
+window.addEventListener('hashchange', async () => { await readLink(); render(); });
 </script>
 </body>
 </html>

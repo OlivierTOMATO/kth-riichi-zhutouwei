@@ -232,7 +232,7 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
       <div class="prize"><span class="medal m0">壹</span><div><b>猪头位</b><span class="muted small">总积分第 1 名，名字永载名人堂</span></div></div>
       <div class="prize"><span class="medal m1">贰</span><div><b>猪头二号</b><span class="muted small">总积分第 2 名</span></div></div>
       <div class="prize"><span class="medal m2">叁</span><div><b>猪头三号</b><span class="muted small">总积分第 3 名</span></div></div>
-      <div class="prize"><span class="medal m3">铳</span><div><b>最佳放铳奖</b><span class="muted small">全程单次放铳点数最大的选手</span></div></div>
+      <div class="prize"><span class="medal m3">铳</span><div><b>最大野猪</b><span class="muted small">全程单次放铳点数最大的选手</span></div></div>
     </div>
   </div></section>
 
@@ -400,7 +400,7 @@ function renderStats(list, worst) {
     card('平均打点', '每次和了的点数，不含本场、供托', played.filter(x => x.win).slice().sort((a, b) => b.avgWin - a.avgWin).map(x => [x.name, Math.round(x.avgWin).toLocaleString('en-US')])),
     card('平均放铳', '每次放铳的点数，越低越好', played.filter(x => x.dealin).slice().sort((a, b) => a.avgDeal - b.avgDeal).map(x => [x.name, Math.round(x.avgDeal).toLocaleString('en-US')])),
     card('立直次数', '次', by(x => x.riichi, v => v)),
-    `<div class="card"><h3>最佳放铳奖<small>单次放铳最大</small></h3>${worst
+    `<div class="card"><h3>最大野猪<small>单次放铳最大</small></h3>${worst
       ? `<div class="award"><span class="big">−${worst.points.toLocaleString('en-US')}</span><span><b>${esc(nameOf(worst.pid))}</b> 放铳给 ${esc(nameOf(worst.to))}</span><span class="muted small">第 ${worst.no} 半庄 · ${worst.label} · ${worst.hand}</span></div>`
       : `<div class="muted small">还没有放铳记录。</div>`}</div>`,
   ];

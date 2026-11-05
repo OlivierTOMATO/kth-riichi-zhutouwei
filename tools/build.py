@@ -22,7 +22,7 @@ STATIC = ["index.html", "record.html", "scoring.js"]
 KINDS = {"ron", "tsumo", "draw", "manual"}
 HANS = {1, 2, 3, 4, 5, 6, 8, 11, 13, 26, 39}
 FUS = {20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110}
-TOTAL = 16
+TOTAL = 20
 
 
 class Bad(Exception):

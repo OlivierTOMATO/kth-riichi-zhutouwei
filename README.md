@@ -1,6 +1,6 @@
 # 猪头位 · KTH 立直麻将公开赛
 
-Site: https://oliviertomato.github.io/kth-riichi-zhutouwei/ (M.LEAGUE rules, 切上满贯, 16 hanchan).
+Site: https://oliviertomato.github.io/kth-riichi-zhutouwei/ (M.LEAGUE rules, 切上满贯, 20 hanchan).
 
 ## How results get onto the site
 

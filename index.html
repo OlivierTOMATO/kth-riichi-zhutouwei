@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>猪头位 · KTH 立直麻将公开赛</title>
-<meta name="description" content="KTH 立直麻将公开赛「猪头位」官方页面：M.LEAGUE 规则，20 个半庄，排行榜、个人数据、赛程与牌谱。">
+<meta name="description" content="KTH 立直麻将公开赛「猪头位」官方页面：M.LEAGUE 规则，常规赛 20 个半庄 + 季后赛 4 个半庄，排行榜、个人数据、赛程与牌谱。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
@@ -100,7 +100,7 @@ h3{font-size:15px;margin:0 0 12px;font-weight:700}
 
 /* ranking */
 .rank{display:flex;flex-direction:column;gap:10px}
-.rrow{display:grid;grid-template-columns:64px 1fr repeat(3,minmax(84px,auto));gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 20px}
+.rrow{display:grid;grid-template-columns:64px 1fr repeat(4,minmax(84px,auto));gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 20px}
 .rrow.h{background:none;border:0;padding-block:0;font-size:12px;color:var(--muted);letter-spacing:.06em}
 .rrow .pos-n{font-family:var(--mono);font-size:30px;font-weight:600;line-height:1}
 .rrow .pos-n .sub{font-family:var(--body);font-size:13px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:2px 6px}
@@ -112,6 +112,17 @@ h3{font-size:15px;margin:0 0 12px;font-weight:700}
 .rrow .pt{font-size:22px;font-weight:600}
 .bars{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--band);margin-top:6px;max-width:220px}
 .bars i{display:block;height:100%}
+.rrow .show-s{display:none}
+
+/* folded regular season */
+details.fold{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+details.fold>summary{cursor:pointer;padding:14px 20px;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::after{content:"展开 ▾";font-weight:400;font-size:13px;color:var(--muted);white-space:nowrap}
+details.fold[open]>summary::after{content:"收起 ▴"}
+details.fold>summary small{font-weight:400;color:var(--muted);font-size:13px;margin-right:auto}
+details.fold .fold-in{padding:0 20px 20px}
+details.fold .tablewrap{margin-top:0}
 
 /* full table */
 .tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-top:22px}
@@ -180,6 +191,7 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
   .sched{grid-template-columns:repeat(2,1fr)}
   .rrow{grid-template-columns:44px 1fr auto;gap:10px;padding:12px 14px}
   .rrow .hide-s{display:none}
+  .rrow .show-s{display:block}
   .rrow .pos-n{font-size:24px}
   h2{font-size:32px}
   .band{padding-block:48px}
@@ -214,8 +226,8 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
     <div>
       <div class="eyebrow">KTH RIICHI OPEN · 第一届</div>
       <h1>猪头<span class="r">位</span></h1>
-      <p class="lead">十六个半庄，四位雀士，一个头衔。累计积分最高的人，戴上第一代「猪头位」。</p>
-      <div class="facts"><span>M.LEAGUE 规则</span><span>有切上满贯</span><span>共 20 个半庄</span><span>KTH 校园</span></div>
+      <p class="lead">常规赛打完，季后赛开打。四个半庄，四位雀士，一个头衔。总积分最高的人，戴上第一代「猪头位」。</p>
+      <div class="facts"><span>M.LEAGUE 规则</span><span>有切上满贯</span><span>常规赛 20 个半庄</span><span>季后赛 4 个半庄</span><span>KTH 校园</span></div>
     </div>
     <div class="match" id="match"><div class="head"><b>读取中…</b></div></div>
   </div></section>
@@ -225,11 +237,11 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
       <div class="eyebrow">ABOUT</div>
       <h2>什么是猪头位</h2>
       <p class="big">牌桌上没有永远的赢家，<br>但总有一个猪头。</p>
-      <p>猪头位是 KTH 立直麻将公开赛的头衔。四位选手按 M.LEAGUE 规则打满 20 个半庄，每个半庄按终局点数和顺位点计分，20 场累计积分决定最后的名次。</p>
+      <p>猪头位是 KTH 立直麻将公开赛的头衔。四位选手按 M.LEAGUE 规则先打完 20 个半庄的常规赛，因为有替补上场，每人场数不同，常规赛积分统一折算到 16 个半庄，再全额带入 4 个半庄的季后赛。季后赛结束时的总积分决定最后的名次。</p>
       <p class="muted">每个半庄由选手在「记录成绩」页面逐局记录，终局后提交，主办方审核通过后公布在这里。</p>
     </div>
     <div class="prizes">
-      <div class="prize"><span class="medal m0">壹</span><div><b>猪头位</b><span class="muted small">总积分第 1 名，名字永载名人堂</span></div></div>
+      <div class="prize"><span class="medal m0">壹</span><div><b>猪头位</b><span class="muted small">季后赛结束时总积分第 1 名，名字永载名人堂</span></div></div>
       <div class="prize"><span class="medal m1">贰</span><div><b>猪头二号</b><span class="muted small">总积分第 2 名</span></div></div>
       <div class="prize"><span class="medal m2">叁</span><div><b>猪头三号</b><span class="muted small">总积分第 3 名</span></div></div>
       <div class="prize"><span class="medal m3">铳</span><div><b>最大野猪</b><span class="muted small">全程单次放铳点数最大的选手</span></div></div>
@@ -239,24 +251,34 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
 
   <section class="band alt" id="ranking"><div class="in">
     <div class="eyebrow">RANKING</div>
-    <h2>排行榜</h2>
+    <h2>季后赛排行榜</h2>
     <div class="rank" id="rank"></div>
-    <div class="tablewrap"><table>
-      <thead><tr><th>#</th><th>选手</th><th>总积分</th><th>半庄</th><th>1/2/3/4 位</th><th>平均顺位</th><th>和了率</th><th>平均打点</th><th>放铳率</th><th>平均放铳</th><th>立直</th></tr></thead>
+    <div class="tablewrap" id="fullWrap" hidden><table>
+      <thead><tr><th>#</th><th>选手</th><th>季后赛积分</th><th>半庄</th><th>1/2/3/4 位</th><th>平均顺位</th><th>和了率</th><th>平均打点</th><th>放铳率</th><th>平均放铳</th><th>立直</th></tr></thead>
       <tbody id="full"></tbody></table></div>
-    <p class="muted small" style="margin-top:14px">只计已终局的半庄。积分 =（终局点数 − 30000）/ 1000 + 顺位马（+30 / +10 / −10 / −30），第 1 名另加头名奖励 +20（4 人各 5000 点的差额）；同点者平分；罚则（如错和 −20）另计。</p>
+    <p class="muted small" style="margin-top:14px">总积分 = 常规赛折算分 + 季后赛积分。常规赛折算分 = 常规赛积分 × 16 / 本人常规赛半庄数（四舍五入到 0.1），全额带入季后赛。每个半庄的积分 =（终局点数 − 30000）/ 1000 + 顺位马（+30 / +10 / −10 / −30），第 1 名另加头名奖励 +20（4 人各 5000 点的差额）；同点者平分；罚则（如错和 −20）另计。只计已终局的半庄。</p>
+    <details class="fold" id="regFold"><summary>常规赛最终成绩<small id="regSum"></small></summary><div class="fold-in">
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>选手</th><th>常规赛积分</th><th>半庄</th><th>折算 16 场</th><th>1/2/3/4 位</th><th>平均顺位</th><th>和了率</th><th>平均打点</th><th>放铳率</th><th>平均放铳</th><th>立直</th></tr></thead>
+        <tbody id="fullReg"></tbody></table></div>
+    </div></details>
   </div></section>
 
   <section class="band" id="stats"><div class="in">
     <div class="eyebrow">PLAYER STATS</div>
     <h2>个人数据</h2>
+    <p class="muted small" style="margin:-16px 0 18px">常规赛 + 季后赛全程合计。</p>
     <div class="stats" id="statcards"></div>
   </div></section>
 
   <section class="band alt" id="schedule"><div class="in">
     <div class="eyebrow">SCHEDULE</div>
     <h2>赛程</h2>
+    <h3>季后赛</h3>
     <div class="sched" id="sched"></div>
+    <details class="fold"><summary>常规赛 20 个半庄<small>已结束</small></summary><div class="fold-in">
+      <div class="sched" id="schedReg"></div>
+    </div></details>
   </div></section>
 
   <section class="band" id="rules"><div class="in">
@@ -295,11 +317,11 @@ const fmtD = v => v === 0 ? '0' : (v > 0 ? '+' : '') + v;
 const sign = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
 const MEDAL = ['var(--aka)', 'var(--gold)', 'var(--felt)'];
 
-function stats() {
+function tally(games) {
   const P = {};
   for (const p of S.roster) P[p.id] = { id: p.id, name: p.name, backup: !!p.backup, n: 0, pt: 0, ranks: [0, 0, 0, 0], win: 0, dealin: 0, winPts: 0, dealPts: 0, riichi: 0, hands: 0, best: null };
   let worst = null;
-  for (const g of S.games) {
+  for (const g of games) {
     const R = replay(g);
     if (!R.done) continue;
     g.seats.forEach((pid, i) => {
@@ -317,22 +339,27 @@ function stats() {
       if (hd.kind === 'ron' || hd.kind === 'tsumo') { const x = P[g.seats[hd.winner]]; if (x) { x.win++; x.winPts += hd.kind === 'ron' ? L.value : L.value - 300 * L.honba; } }
       if (L.dealIn) {
         const x = P[g.seats[L.dealIn.seat]]; if (x) { x.dealin++; x.dealPts += pao ? L.dealIn.points : L.dealIn.points - 300 * L.honba; }
-        if (!worst || L.dealIn.points > worst.points) worst = { points: L.dealIn.points, pid: g.seats[L.dealIn.seat], to: g.seats[hd.winner], no: g.no, label: L.label, hand: handName(hd) };
+        if (!worst || L.dealIn.points > worst.points) worst = { points: L.dealIn.points, pid: g.seats[L.dealIn.seat], to: g.seats[hd.winner], g, label: L.label, hand: handName(hd) };
       }
     }
   }
   const list = Object.values(P).map(x => ({ ...x, pt: Math.round(x.pt * 10) / 10, avg: x.n ? x.ranks.reduce((a, c, i) => a + c * (i + 1), 0) / x.n : null,
     avgWin: x.win ? x.winPts / x.win : null, avgDeal: x.dealin ? x.dealPts / x.dealin : null }));
-  // 替补不参与头衔排名，排在最后
-  list.sort((a, b) => a.backup - b.backup || (b.n > 0) - (a.n > 0) || b.pt - a.pt || (a.avg ?? 9) - (b.avg ?? 9));
   return { list, worst };
 }
+const r1 = v => Math.round(v * 10) / 10;
+// 替补不参与头衔排名，排在最后
+const rankSort = key => (a, b) => a.backup - b.backup || (b.n + (b.reg ? b.reg.n : 0) > 0) - (a.n + (a.reg ? a.reg.n : 0) > 0) || b[key] - a[key] || (a.avg ?? 9) - (b.avg ?? 9);
 
-function gamesByNo() {
-  const m = {};
-  for (const g of S.games) (m[g.no] = m[g.no] || []).push(g);
-  for (const k in m) m[k].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
-  return m;
+function stats() {
+  const reg = tally(S.games.filter(g => !isPO(g))).list, all = tally(S.games);
+  for (const x of reg) x.carry = x.n ? r1(x.pt * NORM / x.n) : 0;
+  const list = tally(S.games.filter(isPO)).list.map(x => {
+    const r = reg.find(y => y.id === x.id);
+    return { ...x, reg: r, carry: r.carry, total: r1(r.carry + x.pt) };
+  });
+  list.sort(rankSort('total')); reg.sort(rankSort('pt')); all.list.sort(rankSort('pt'));
+  return { list, reg, all: all.list, worst: all.worst };
 }
 
 function renderMatch() {
@@ -344,7 +371,7 @@ function renderMatch() {
     return;
   }
   // current = latest unfinished game, else the most recent finished one
-  const sorted = S.games.slice().sort((a, b) => (b.no - a.no) || (b.createdAt || 0) - (a.createdAt || 0));
+  const sorted = S.games.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   const g = sorted.find(x => !replay(x).done) || sorted[0];
   const R = replay(g);
   const st = R.done ? `<span class="st done">已终局</span>` : `<span class="st">进行中 · ${roundLabel(R.r, R.h)}</span>`;
@@ -353,7 +380,7 @@ function renderMatch() {
     return `<div class="tile">${oya ? '<span class="oya">庄</span>' : ''}<div class="w ${oya ? 'd' : ''}">${WINDS[i]}</div><div class="n">${esc(nameOf(pid))}</div><div class="s">${R.scores[i]}</div>
       <div class="p">${R.done ? `${R.rank[i] + 1}位 ${fmtPt(R.pts[i])}` : `${R.scores[i] - START >= 0 ? '+' : ''}${R.scores[i] - START}`}</div></div>`;
   }).join('');
-  el.innerHTML = `<div class="head"><b>第 ${g.no} 半庄</b>${st}<span class="meta">${R.done ? '' : `本场 ${R.h} · 供托 ${R.pot}`}</span></div>
+  el.innerHTML = `<div class="head"><b>${gameName(g)}</b>${st}<span class="meta">${R.done ? '' : `本场 ${R.h} · 供托 ${R.pot}`}</span></div>
     <div class="tiles">${tiles}</div>
     <div class="foot"><span>已记录 ${(g.hands || []).length} 局</span><button class="link" data-game="${esc(g.id)}">查看牌谱 →</button></div>`;
 }
@@ -361,26 +388,27 @@ function renderMatch() {
 function renderRank(list) {
   const el = document.getElementById('rank');
   if (!list.length) { el.innerHTML = `<div class="empty">还没有选手。</div>`; return; }
-  const head = `<div class="rrow h"><span>名次</span><span>选手</span><span class="v">积分</span><span class="v hide-s">差距</span><span class="v hide-s">半庄</span></div>`;
+  const head = `<div class="rrow h"><span>名次</span><span>选手</span><span class="v">总积分</span><span class="v hide-s">常规赛折算</span><span class="v hide-s">季后赛</span><span class="v hide-s">季后赛半庄</span></div>`;
   el.innerHTML = head + list.map((x, i) => {
-    const prev = list[i - 1];
-    const gap = x.n && prev && prev.n && !x.backup ? (prev.pt - x.pt).toFixed(1) : '—';
+    const any = x.n || x.reg.n;
     const dist = x.n ? `<div class="bars" title="1/2/3/4 位次数">${x.ranks.map((c, k) => `<i style="width:${c / x.n * 100}%;background:${['var(--aka)', 'var(--gold)', 'var(--felt)', 'var(--muted)'][k]}"></i>`).join('')}</div>` : '';
-    return `<div class="rrow ${x.backup ? 'bk' : x.n && i === 0 ? 'r1' : ''}">
-      <span class="pos-n">${x.backup ? '<span class="sub">替补</span>' : x.n ? i + 1 : '–'}</span>
-      <div><div class="who">${esc(x.name)}${x.n && i < 3 && !x.backup ? `<span class="badge" style="background:${MEDAL[i]}">${TITLES[i]}</span>` : ''}</div>${dist}</div>
-      <span class="v pt ${sign(x.pt)}">${x.n ? fmtPt(x.pt) : '—'}</span>
-      <span class="v hide-s muted">${i === 0 || !x.n ? '—' : gap}</span>
-      <span class="v hide-s">${x.n}/${TOTAL}</span>
+    return `<div class="rrow ${x.backup ? 'bk' : any && i === 0 ? 'r1' : ''}">
+      <span class="pos-n">${x.backup ? '<span class="sub">替补</span>' : any ? i + 1 : '–'}</span>
+      <div><div class="who">${esc(x.name)}${any && i < 3 && !x.backup ? `<span class="badge" style="background:${MEDAL[i]}">${TITLES[i]}</span>` : ''}</div>
+        <div class="muted small num show-s">常规赛 ${fmtPt(x.carry)} · 季后赛 ${fmtPt(x.pt)}（${x.n}/${PLAYOFF}）</div>${dist}</div>
+      <span class="v pt ${sign(x.total)}">${any ? fmtPt(x.total) : '—'}</span>
+      <span class="v hide-s ${sign(x.carry)}">${x.reg.n ? fmtPt(x.carry) : '—'}</span>
+      <span class="v hide-s ${sign(x.pt)}">${x.n ? fmtPt(x.pt) : '—'}</span>
+      <span class="v hide-s">${x.n}/${PLAYOFF}</span>
     </div>`;
   }).join('');
 }
 
-function renderFull(list) {
-  document.getElementById('full').innerHTML = list.map((x, i) => `<tr>
+function renderFull(id, list, norm) {
+  document.getElementById(id).innerHTML = list.map((x, i) => `<tr>
     <td>${x.backup ? '替补' : x.n ? i + 1 : '–'}</td><td>${esc(x.name)}${x.backup ? '<span class="muted">（替补）</span>' : ''}</td>
     <td class="${sign(x.pt)}"><b>${x.n ? fmtPt(x.pt) : '–'}</b></td>
-    <td>${x.n}</td><td>${x.ranks.join(' / ')}</td>
+    <td>${x.n}</td>${norm ? `<td class="${sign(x.carry)}">${x.n ? fmtPt(x.carry) : '–'}</td>` : ''}<td>${x.ranks.join(' / ')}</td>
     <td>${x.avg != null ? x.avg.toFixed(2) : '–'}</td>
     <td>${x.hands ? (x.win / x.hands * 100).toFixed(1) + '%' : '–'}</td>
     <td>${x.avgWin != null ? Math.round(x.avgWin).toLocaleString('en-US') : '–'}</td>
@@ -403,7 +431,7 @@ function renderStats(list, worst) {
     card('平均放铳', '每次放铳的点数，越低越好', played.filter(x => x.dealin).slice().sort((a, b) => a.avgDeal - b.avgDeal).map(x => [x.name, Math.round(x.avgDeal).toLocaleString('en-US')])),
     card('立直次数', '次', by(x => x.riichi, v => v)),
     `<div class="card"><h3>最大野猪<small>单次放铳最大</small></h3>${worst
-      ? `<div class="award"><span class="big">−${worst.points.toLocaleString('en-US')}</span><span><b>${esc(nameOf(worst.pid))}</b> 放铳给 ${esc(nameOf(worst.to))}</span><span class="muted small">第 ${worst.no} 半庄 · ${worst.label} · ${worst.hand}</span></div>`
+      ? `<div class="award"><span class="big">−${worst.points.toLocaleString('en-US')}</span><span><b>${esc(nameOf(worst.pid))}</b> 放铳给 ${esc(nameOf(worst.to))}</span><span class="muted small">${gameName(worst.g)} · ${worst.label} · ${worst.hand}</span></div>`
       : `<div class="muted small">还没有放铳记录。</div>`}</div>`,
     `<div class="card"><h3>最大乌龟<small>放铳率最低</small></h3>${turtle
       ? `<div class="award"><span class="big" style="color:var(--felt)">${(turtle.dealin / turtle.hands * 100).toFixed(1)}%</span><span><b>${esc(turtle.name)}</b> 放铳 ${turtle.dealin} 次 / 参与 ${turtle.hands} 局</span><span class="muted small">同率时参与局数多者优先</span></div>`
@@ -412,9 +440,11 @@ function renderStats(list, worst) {
   document.getElementById('statcards').innerHTML = html.join('');
 }
 
-function renderSched() {
-  const m = gamesByNo();
-  document.getElementById('sched').innerHTML = Array.from({ length: TOTAL }, (_, k) => {
+function renderSched(id, games, count) {
+  const m = {};
+  for (const g of games) (m[g.no] = m[g.no] || []).push(g);
+  for (const k in m) m[k].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+  document.getElementById(id).innerHTML = Array.from({ length: count }, (_, k) => {
     const no = k + 1, gs = m[no] || [];
     if (!gs.length) return `<div class="cell todo"><span class="no">第 ${no} 半庄</span><span class="tag">未开始</span></div>`;
     const g = gs[gs.length - 1], R = replay(g);
@@ -444,7 +474,7 @@ function renderGame(g) {
   }).join('') : `<div class="muted small">这个半庄没有逐局记录。</div>`;
   document.getElementById('detailIn').innerHTML = `
     <button class="back" data-back>← 返回首页</button>
-    <div class="ghead"><span class="gno">第 ${g.no} 半庄</span><span class="state">${R.done ? '终局' : roundLabel(R.r, R.h)}</span>
+    <div class="ghead"><span class="gno">${gameName(g)}</span><span class="state">${R.done ? '终局' : roundLabel(R.r, R.h)}</span>
       <span class="muted small">本场 ${R.done ? '–' : R.h} · 供托 ${R.pot} · 已记录 ${(g.hands || []).length} 局</span></div>
     <div class="board">${seats}</div>
     ${g.final ? `<p class="muted small">终局点数为直接录入。</p>` : ''}
@@ -480,8 +510,14 @@ document.addEventListener('click', e => {
     document.getElementById('match').innerHTML = `<div class="head"><b>成绩暂时读不出来</b></div><p class="small">请稍后刷新页面。</p>`;
     return;
   }
-  const { list, worst } = stats();
-  renderMatch(); renderRank(list); renderFull(list); renderStats(list, worst); renderSched();
+  const { list, reg, all, worst } = stats();
+  const po = S.games.filter(isPO), regGames = S.games.filter(g => !isPO(g));
+  renderMatch(); renderRank(list);
+  document.getElementById('fullWrap').hidden = !po.length; renderFull('full', list, false);
+  renderFull('fullReg', reg, true);
+  document.getElementById('regSum').textContent = `${regGames.length} 个半庄 · ` + reg.filter(x => x.n && !x.backup).map(x => `${x.name} ${fmtPt(x.carry)}`).join(' · ');
+  renderStats(all, worst);
+  renderSched('sched', po, PLAYOFF); renderSched('schedReg', regGames, TOTAL);
   if (S.syncedAt) document.getElementById('synced').textContent = `成绩更新于 ${new Date(S.syncedAt).toLocaleString('zh-CN', { hour12: false })}`;
 })();
 </script>

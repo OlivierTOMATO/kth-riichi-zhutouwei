@@ -216,14 +216,17 @@ function render() {
 }
 
 function viewSetup() {
-  const done = new Set(S.published.map(g => g.no));
-  const next = Array.from({ length: TOTAL }, (_, i) => i + 1).find(n => !done.has(n)) || TOTAL;
+  const key = g => (isPO(g) ? 'p' : '') + g.no;
+  const done = new Set(S.published.map(key));
+  const slots = [...Array.from({ length: PLAYOFF }, (_, i) => ({ no: i + 1, stage: 'playoff' })), ...Array.from({ length: TOTAL }, (_, i) => ({ no: i + 1 }))];
+  const next = key(slots.find(g => !done.has(key(g))) || slots[0]);
+  const opt = g => `<option value="${key(g)}" ${key(g) === next ? 'selected' : ''}>${gameName(g)}${done.has(key(g)) ? '（已公布）' : ''}</option>`;
   const opts = `<option value="">选择选手</option>` + S.roster.map(p => `<option value="${esc(p.id)}">${esc(p.name)}${p.backup ? '（替补）' : ''}</option>`).join('');
   return `<section>
     <div class="panel">
       <h2 style="margin-bottom:12px">开始一个半庄</h2>
       <div class="row" style="margin-bottom:12px">
-        <label class="f">第几个半庄<select id="ng-no">${Array.from({ length: TOTAL }, (_, i) => `<option value="${i + 1}" ${i + 1 === next ? 'selected' : ''}>第 ${i + 1} 半庄${done.has(i + 1) ? '（已公布）' : ''}</option>`).join('')}</select></label>
+        <label class="f">第几个半庄<select id="ng-no"><optgroup label="季后赛">${slots.filter(isPO).map(opt).join('')}</optgroup><optgroup label="常规赛">${slots.filter(g => !isPO(g)).map(opt).join('')}</optgroup></select></label>
         <label class="f">记录人<input type="text" id="ng-scorer" placeholder="你的名字" maxlength="40"></label>
       </div>
       <div class="row" style="margin-bottom:14px">${WINDS.map((w, i) => `<label class="f">${w}家${i === 0 ? '（起家）' : ''}<select id="ng-s${i}">${opts}</select></label>`).join('')}</div>
@@ -308,7 +311,7 @@ function viewGame(g) {
 
   const armedNew = S.armed === 'new';
   return `<section>
-    <div class="ghead"><span class="gno">第 ${g.no} 半庄</span>${R.done ? '<span class="state">终局</span>' : `<span class="state">${roundLabel(R.r, R.h)}</span>`}<span class="spacer"></span>
+    <div class="ghead"><span class="gno">${gameName(g)}</span>${R.done ? '<span class="state">终局</span>' : `<span class="state">${roundLabel(R.r, R.h)}</span>`}<span class="spacer"></span>
       <div class="sticks"><span>本场 <b class="num">${R.done ? '–' : R.h}</b></span><span>供托 <b class="num">${R.pot}</b></span><span>已记录 <b class="num">${g.hands.length}</b> 局</span></div></div>
     <div class="board">${seats}</div>
     ${g.final ? `<div class="banner">终局点数为直接录入。</div>` : ''}
@@ -343,7 +346,7 @@ function logHTML(g, R, editable) {
 }
 
 /* ---------- share link: the whole hanchan travels in the URL (#g=…), no account needed ---------- */
-const minGame = g => ({ no: g.no, seats: g.seats, hands: g.hands, final: g.final || null, createdAt: g.createdAt, scorer: g.scorer || '' });
+const minGame = g => ({ no: g.no, ...(isPO(g) ? { stage: 'playoff' } : {}), seats: g.seats, hands: g.hands, final: g.final || null, createdAt: g.createdAt, scorer: g.scorer || '' });
 const linkKey = g => JSON.stringify(minGame(g));
 const b64u = bytes => { let t = ''; for (const c of bytes) t += String.fromCharCode(c); return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
 const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
@@ -381,7 +384,8 @@ function cleanGame(x) {
     return o;
   });
   const final = Array.isArray(x.final) && x.final.length === 4 ? x.final.map(v => int(v, -1e6, 1e6)) : null;
-  return { no: int(x.no, 1, TOTAL), table: '', seats: x.seats.map(v => String(v).slice(0, 40)), hands, final,
+  const po = x.stage === 'playoff';
+  return { no: int(x.no, 1, po ? PLAYOFF : TOTAL), ...(po ? { stage: 'playoff' } : {}), table: '', seats: x.seats.map(v => String(v).slice(0, 40)), hands, final,
     createdAt: Number(x.createdAt) || Date.now(), scorer: String(x.scorer || '').slice(0, 40) };
 }
 async function refreshLink() {
@@ -393,7 +397,7 @@ async function refreshLink() {
 }
 function summaryText(g) {
   const R = replay(g), order = [0, 1, 2, 3].sort((a, b) => R.rank[a] - R.rank[b]);
-  return `猪头位 · 第 ${g.no} 半庄成绩${g.scorer ? `（记录人：${g.scorer}）` : ''}\n` +
+  return `猪头位 · ${gameName(g)}成绩${g.scorer ? `（记录人：${g.scorer}）` : ''}\n` +
     order.map(i => `${R.rank[i] + 1}位 ${nameOf(g.seats[i])} ${R.scores[i]}（${fmtPt(R.pts[i])}）`).join('\n') + '\n打开链接核对并发布：';
 }
 async function copyText(t) { try { await navigator.clipboard.writeText(t); return true; } catch { return false; } }
@@ -409,14 +413,15 @@ function viewReview() {
   if (new Set(g.seats).size !== 4) warn.push('同一位选手出现在两个位置上。');
   if (!R.done) warn.push('这个半庄还没有终局。');
   if (g.final && g.final.reduce((a, c) => a + c, 0) !== 100000) warn.push('直接录入的终局点数合计不是 100000。');
-  const same = S.published.find(p => p.no === g.no && p.createdAt === g.createdAt);
+  const slot = p => p.no === g.no && isPO(p) === isPO(g);
+  const same = S.published.find(p => slot(p) && p.createdAt === g.createdAt);
   if (same) warn.push('这份成绩已经公布过了，不需要再发布。');
-  else if (S.published.some(p => p.no === g.no)) warn.push(`第 ${g.no} 半庄已经有一份公布的成绩，请确认这不是重复提交。`);
+  else if (S.published.some(slot)) warn.push(`${gameName(g)}已经有一份公布的成绩，请确认这不是重复提交。`);
   const blocked = warn.length && (g.seats.some(id => !known.has(id)) || new Set(g.seats).size !== 4 || !R.done || same);
   const armed = S.armed === 'take';
   return `<section>
     <div class="banner">这是选手发来的成绩，<b>还没有公布</b>。核对无误后点「发布到网站」（需要主办方的 GitHub 账号）。</div>
-    <div class="ghead"><span class="gno">第 ${g.no} 半庄</span><span class="state">${R.done ? '终局' : roundLabel(R.r, R.h)}</span><span class="spacer"></span>
+    <div class="ghead"><span class="gno">${gameName(g)}</span><span class="state">${R.done ? '终局' : roundLabel(R.r, R.h)}</span><span class="spacer"></span>
       <div class="sticks"><span>记录人 <b>${esc(g.scorer || '未填写')}</b></span><span>已记录 <b class="num">${g.hands.length}</b> 局</span></div></div>
     <div class="board">${seatsHTML(g, R)}</div>
     ${warn.map(w => `<div class="banner warn">${esc(w)}</div>`).join('')}
@@ -458,7 +463,7 @@ function hint() {
 
 // One hand per line keeps the pull request diff readable for the reviewer.
 function gameJSON(g) {
-  const head = { no: g.no, table: g.table || '', seats: g.seats, final: g.final || null, createdAt: g.createdAt, scorer: g.scorer || '' };
+  const head = { no: g.no, ...(isPO(g) ? { stage: 'playoff' } : {}), table: g.table || '', seats: g.seats, final: g.final || null, createdAt: g.createdAt, scorer: g.scorer || '' };
   const names = g.seats.map(nameOf).join(' / ');
   return `{\n  "_players": ${JSON.stringify(names)},\n` +
     Object.entries(head).map(([k, v]) => `  ${JSON.stringify(k)}: ${JSON.stringify(v)},`).join('\n') +
@@ -467,7 +472,7 @@ function gameJSON(g) {
 function fileName(g) {
   const d = new Date(g.createdAt || Date.now());
   const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
-  return `games/hanchan-${String(g.no).padStart(2, '0')}-${stamp}.json`;
+  return `games/${isPO(g) ? 'playoff' : 'hanchan'}-${String(g.no).padStart(2, '0')}-${stamp}.json`;
 }
 
 /* ---------- events ---------- */
@@ -485,7 +490,8 @@ document.getElementById('app').addEventListener('click', async e => {
       const seats = [0, 1, 2, 3].map(i => document.getElementById('ng-s' + i).value);
       if (seats.some(x => !x)) return toast('请为东南西北四家都选好选手。');
       if (new Set(seats).size !== 4) return toast('同一位选手不能坐两个位置。');
-      S.draft = { no: +document.getElementById('ng-no').value, table: '', seats, hands: [], final: null, createdAt: Date.now(), scorer: document.getElementById('ng-scorer').value.trim() };
+      const slot = document.getElementById('ng-no').value, po = slot[0] === 'p';
+      S.draft = { no: +slot.replace('p', ''), ...(po ? { stage: 'playoff' } : {}), table: '', seats, hands: [], final: null, createdAt: Date.now(), scorer: document.getElementById('ng-scorer').value.trim() };
       S.form = freshForm(); S.submitted = false; break;
     }
     case 'f-kind': S.form = { ...freshForm(), kind: b.dataset.v, han: F.han, fu: F.fu, riichi: F.riichi }; break;
@@ -522,7 +528,7 @@ document.getElementById('app').addEventListener('click', async e => {
       if (!S.link) return;
       const text = summaryText(g), url = S.link.url;
       if (navigator.share) {
-        try { await navigator.share({ title: `猪头位 · 第 ${g.no} 半庄`, text, url }); S.submitted = true; break; }
+        try { await navigator.share({ title: `猪头位 · ${gameName(g)}`, text, url }); S.submitted = true; break; }
         catch (err) { if (err && err.name === 'AbortError') return; }
       }
       if (await copyText(text + '\n' + url)) toast('已复制，粘贴到微信发给主办方即可。');

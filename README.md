@@ -1,6 +1,9 @@
 # 猪头位 · KTH 立直麻将公开赛
 
-Site: https://oliviertomato.github.io/kth-riichi-zhutouwei/ (M.LEAGUE rules, 切上满贯, 20 hanchan).
+Site: https://oliviertomato.github.io/kth-riichi-zhutouwei/ (M.LEAGUE rules, 切上满贯). Regular season: 20 hanchan, finished.
+Playoffs: 4 hanchan. Each player's regular-season points are scaled to 16 hanchan
+(points × 16 / hanchan played) and carried into the playoffs in full; the homepage ranks by
+carry + playoff points and keeps the regular season folded underneath.
 
 ## How results get onto the site
 
@@ -19,6 +22,7 @@ request; the **Check submitted game** workflow then shows the scores in the pull
 
 - `roster.json`: players (`id`, `name`). Game files refer to players by id.
 - `games/*.json`: one file per hanchan with seats (东南西北), hand log, optional final scores.
+  Playoff games carry `"stage": "playoff"` (numbered 1-4, files `playoff-NN-….json`).
 - `scoring.js`: M.LEAGUE scoring, shared by the homepage, the recorder and the check.
 - `tools/build.py`: validates everything and writes `data.json` (`python3 tools/build.py`).
 - `tools/summary.js`: Markdown result table for the pull-request check.

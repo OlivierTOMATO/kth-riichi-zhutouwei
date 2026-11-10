@@ -20,6 +20,11 @@
    "id": "p_lanslie",
    "name": "Lanslie",
    "backup": true
+  },
+  {
+   "id": "p_max",
+   "name": "Max",
+   "guest": true
   }
  ]
 }

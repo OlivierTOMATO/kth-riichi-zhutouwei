@@ -322,7 +322,7 @@ const MEDAL = ['var(--aka)', 'var(--gold)', 'var(--felt)'];
 
 function tally(games) {
   const P = {};
-  for (const p of S.roster) P[p.id] = { id: p.id, name: p.name, backup: !!p.backup, n: 0, pt: 0, ranks: [0, 0, 0, 0], win: 0, dealin: 0, winPts: 0, dealPts: 0, riichi: 0, hands: 0, best: null };
+  for (const p of S.roster) P[p.id] = { id: p.id, name: p.name, backup: !!(p.backup || p.guest), guest: !!p.guest, n: 0, pt: 0, ranks: [0, 0, 0, 0], win: 0, dealin: 0, winPts: 0, dealPts: 0, riichi: 0, hands: 0, best: null };
   let worst = null;
   for (const g of games) {
     const R = replay(g);
@@ -362,15 +362,17 @@ function stats() {
     return { ...x, reg: r, carry: r.carry, total: r1(r.carry + x.pt) };
   });
   list.sort(rankSort('total')); reg.sort(rankSort('pt')); all.list.sort(rankSort('pt'));
-  return { list, reg, all: all.list, worst: all.worst };
+  // 客人只打娱乐局时不出现在排行榜和个人数据里；打过正式比赛则和替补一样列在最后
+  const seen = x => !x.guest || x.n || (x.reg && x.reg.n);
+  return { list: list.filter(seen), reg: reg.filter(seen), all: all.list.filter(seen), worst: all.worst };
 }
 
 function renderMatch() {
   const el = document.getElementById('match');
   if (!S.games.length) {
     el.innerHTML = `<div class="head"><b>第 1 半庄</b><span class="st done">即将开始</span></div>
-      <div class="tiles">${S.roster.filter(p => !p.backup).slice(0, 4).map((p, i) => `<div class="tile"><div class="w">${WINDS[i]}</div><div class="n">${esc(p.name)}</div><div class="s">${START}</div><div class="p">座位待定</div></div>`).join('')}</div>
-      <div class="foot"><span>选手：${S.roster.filter(p => !p.backup).map(p => esc(p.name)).join(' · ') || '待定'}${S.roster.some(p => p.backup) ? ` · 替补：${S.roster.filter(p => p.backup).map(p => esc(p.name)).join('、')}` : ''}</span></div>`;
+      <div class="tiles">${S.roster.filter(p => !p.backup && !p.guest).slice(0, 4).map((p, i) => `<div class="tile"><div class="w">${WINDS[i]}</div><div class="n">${esc(p.name)}</div><div class="s">${START}</div><div class="p">座位待定</div></div>`).join('')}</div>
+      <div class="foot"><span>选手：${S.roster.filter(p => !p.backup && !p.guest).map(p => esc(p.name)).join(' · ') || '待定'}${S.roster.some(p => p.backup) ? ` · 替补：${S.roster.filter(p => p.backup).map(p => esc(p.name)).join('、')}` : ''}</span></div>`;
     return;
   }
   // current = latest unfinished game, else the most recent finished one
@@ -396,7 +398,7 @@ function renderRank(list) {
     const any = x.n || x.reg.n;
     const dist = x.n ? `<div class="bars" title="1/2/3/4 位次数">${x.ranks.map((c, k) => `<i style="width:${c / x.n * 100}%;background:${['var(--aka)', 'var(--gold)', 'var(--felt)', 'var(--muted)'][k]}"></i>`).join('')}</div>` : '';
     return `<div class="rrow ${x.backup ? 'bk' : any && i === 0 ? 'r1' : ''}">
-      <span class="pos-n">${x.backup ? '<span class="sub">替补</span>' : any ? i + 1 : '–'}</span>
+      <span class="pos-n">${x.backup ? `<span class="sub">${x.guest ? '客人' : '替补'}</span>` : any ? i + 1 : '–'}</span>
       <div><div class="who">${esc(x.name)}${any && i < 3 && !x.backup ? `<span class="badge" style="background:${MEDAL[i]}">${TITLES[i]}</span>` : ''}</div>
         <div class="muted small num show-s">常规赛 ${fmtPt(x.carry)} · 季后赛 ${fmtPt(x.pt)}（${x.n}/${PLAYOFF}）</div>${dist}</div>
       <span class="v pt ${sign(x.total)}">${any ? fmtPt(x.total) : '—'}</span>
@@ -409,7 +411,7 @@ function renderRank(list) {
 
 function renderFull(id, list, norm) {
   document.getElementById(id).innerHTML = list.map((x, i) => `<tr>
-    <td>${x.backup ? '替补' : x.n ? i + 1 : '–'}</td><td>${esc(x.name)}${x.backup ? '<span class="muted">（替补）</span>' : ''}</td>
+    <td>${x.backup ? (x.guest ? '客人' : '替补') : x.n ? i + 1 : '–'}</td><td>${esc(x.name)}${x.backup ? `<span class="muted">（${x.guest ? '客人' : '替补'}）</span>` : ''}</td>
     <td class="${sign(x.pt)}"><b>${x.n ? fmtPt(x.pt) : '–'}</b></td>
     <td>${x.n}</td>${norm ? `<td class="${sign(x.carry)}">${x.n ? fmtPt(x.carry) : '–'}</td>` : ''}<td>${x.ranks.join(' / ')}</td>
     <td>${x.avg != null ? x.avg.toFixed(2) : '–'}</td>

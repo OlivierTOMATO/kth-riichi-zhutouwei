@@ -222,7 +222,7 @@ function viewSetup() {
   const next = key(slots.find(g => !done.has(key(g))) || slots[0]);
   const casual = { no: Math.max(0, ...S.published.filter(isCasual).map(g => g.no)) + 1, stage: 'casual' };
   const opt = g => `<option value="${key(g)}" ${key(g) === next ? 'selected' : ''}>${gameName(g)}${done.has(key(g)) ? '（已公布）' : ''}</option>`;
-  const opts = `<option value="">选择选手</option>` + S.roster.map(p => `<option value="${esc(p.id)}">${esc(p.name)}${p.backup ? '（替补）' : ''}</option>`).join('');
+  const opts = `<option value="">选择选手</option>` + S.roster.map(p => `<option value="${esc(p.id)}">${esc(p.name)}${p.backup ? '（替补）' : p.guest ? '（客人）' : ''}</option>`).join('');
   return `<section>
     <div class="panel">
       <h2 style="margin-bottom:12px">开始一个半庄</h2>

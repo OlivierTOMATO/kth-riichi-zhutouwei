@@ -24,7 +24,7 @@
   {
    "id": "p_max",
    "name": "Max",
-   "guest": true
+   "backup": true
   }
  ]
 }

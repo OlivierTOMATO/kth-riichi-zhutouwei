@@ -23,6 +23,8 @@ request; the **Check submitted game** workflow then shows the scores in the pull
 - `roster.json`: players (`id`, `name`). Game files refer to players by id.
 - `games/*.json`: one file per hanchan with seats (东南西北), hand log, optional final scores.
   Playoff games carry `"stage": "playoff"` (numbered 1-4, files `playoff-NN-….json`).
+  Casual games (娱乐局) carry `"stage": "casual"` (files `casual-NN-….json`): listed on the
+  homepage in their own folded section, never counted in rankings or stats.
 - `scoring.js`: M.LEAGUE scoring, shared by the homepage, the recorder and the check.
 - `tools/build.py`: validates everything and writes `data.json` (`python3 tools/build.py`).
 - `tools/summary.js`: Markdown result table for the pull-request check.

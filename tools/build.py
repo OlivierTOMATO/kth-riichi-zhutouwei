@@ -6,7 +6,7 @@
     python3 tools/build.py --import-export # copy a Claude-recorder export (.export/) into roster.json + games/
 
 Every game file is one hanchan, in the same shape the recorder page submits:
-    {"no": 1, "stage": "playoff" (omit for the regular season), "table": "", "seats": [4 player ids, 东南西北], "hands": [...], "final": null|[4 scores],
+    {"no": 1, "stage": "playoff" | "casual" (omit for the regular season), "table": "", "seats": [4 player ids, 东南西北], "hands": [...], "final": null|[4 scores],
      "createdAt": ms, "scorer": "who recorded it"}
 """
 import argparse
@@ -24,6 +24,7 @@ HANS = {1, 2, 3, 4, 5, 6, 8, 11, 13, 26, 39}
 FUS = {20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110}
 TOTAL = 20
 PLAYOFF = 4
+CASUAL = 999  # 娱乐局: not scored, numbered freely
 
 
 class Bad(Exception):
@@ -83,9 +84,9 @@ def clean_game(g, roster_ids, gid):
     if not isinstance(g, dict):
         raise Bad("not a JSON object")
     stage = g.get("stage") or "regular"
-    if stage not in ("regular", "playoff"):
-        raise Bad('stage must be "regular" or "playoff"')
-    top = PLAYOFF if stage == "playoff" else TOTAL
+    if stage not in ("regular", "playoff", "casual"):
+        raise Bad('stage must be "regular", "playoff" or "casual"')
+    top = {"playoff": PLAYOFF, "casual": CASUAL}.get(stage, TOTAL)
     no = g.get("no")
     if not isinstance(no, int) or not 1 <= no <= top:
         raise Bad(f"no must be 1-{top} for a {stage} game")
@@ -107,7 +108,7 @@ def clean_game(g, roster_ids, gid):
     return {
         "id": gid,
         "no": no,
-        **({"stage": "playoff"} if stage == "playoff" else {}),
+        **({"stage": stage} if stage != "regular" else {}),
         "table": str(g.get("table") or "")[:20],
         "seats": s,
         "hands": [clean_hand(h, i) for i, h in enumerate(hands)],

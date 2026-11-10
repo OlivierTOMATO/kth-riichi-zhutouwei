@@ -279,6 +279,9 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
     <details class="fold"><summary>常规赛 20 个半庄<small>已结束</small></summary><div class="fold-in">
       <div class="sched" id="schedReg"></div>
     </div></details>
+    <details class="fold" id="casualFold" hidden><summary>娱乐局<small id="casualSum"></small></summary><div class="fold-in">
+      <div class="sched" id="schedCasual"></div>
+    </div></details>
   </div></section>
 
   <section class="band" id="rules"><div class="in">
@@ -352,7 +355,7 @@ const r1 = v => Math.round(v * 10) / 10;
 const rankSort = key => (a, b) => a.backup - b.backup || (b.n + (b.reg ? b.reg.n : 0) > 0) - (a.n + (a.reg ? a.reg.n : 0) > 0) || b[key] - a[key] || (a.avg ?? 9) - (b.avg ?? 9);
 
 function stats() {
-  const reg = tally(S.games.filter(g => !isPO(g))).list, all = tally(S.games);
+  const reg = tally(S.games.filter(g => !g.stage)).list, all = tally(S.games.filter(g => !isCasual(g)));
   for (const x of reg) x.carry = x.n ? r1(x.pt * NORM / x.n) : 0;
   const list = tally(S.games.filter(isPO)).list.map(x => {
     const r = reg.find(y => y.id === x.id);
@@ -371,7 +374,7 @@ function renderMatch() {
     return;
   }
   // current = latest unfinished game, else the most recent finished one
-  const sorted = S.games.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  const sorted = S.games.filter(g => !isCasual(g)).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   const g = sorted.find(x => !replay(x).done) || sorted[0];
   const R = replay(g);
   const st = R.done ? `<span class="st done">已终局</span>` : `<span class="st">进行中 · ${roundLabel(R.r, R.h)}</span>`;
@@ -440,6 +443,12 @@ function renderStats(list, worst) {
   document.getElementById('statcards').innerHTML = html.join('');
 }
 
+function cell(g, label) {
+  const R = replay(g);
+  if (!R.done) return `<button class="cell live" data-game="${esc(g.id)}"><span class="no">${label}</span><span class="tag">进行中 · ${roundLabel(R.r, R.h)}</span><span class="top1 muted">已记录 ${(g.hands || []).length} 局</span></button>`;
+  const top = R.rank.indexOf(0);
+  return `<button class="cell done" data-game="${esc(g.id)}"><span class="no">${label}</span><span class="tag">已终局</span><span class="top1">1 位 <b>${esc(nameOf(g.seats[top]))}</b> <span class="num pos">${fmtPt(R.pts[top])}</span></span></button>`;
+}
 function renderSched(id, games, count) {
   const m = {};
   for (const g of games) (m[g.no] = m[g.no] || []).push(g);
@@ -447,11 +456,13 @@ function renderSched(id, games, count) {
   document.getElementById(id).innerHTML = Array.from({ length: count }, (_, k) => {
     const no = k + 1, gs = m[no] || [];
     if (!gs.length) return `<div class="cell todo"><span class="no">第 ${no} 半庄</span><span class="tag">未开始</span></div>`;
-    const g = gs[gs.length - 1], R = replay(g);
-    if (!R.done) return `<button class="cell live" data-game="${esc(g.id)}"><span class="no">第 ${no} 半庄</span><span class="tag">进行中 · ${roundLabel(R.r, R.h)}</span><span class="top1 muted">已记录 ${(g.hands || []).length} 局</span></button>`;
-    const top = R.rank.indexOf(0);
-    return `<button class="cell done" data-game="${esc(g.id)}"><span class="no">第 ${no} 半庄</span><span class="tag">已终局</span><span class="top1">1 位 <b>${esc(nameOf(g.seats[top]))}</b> <span class="num pos">${fmtPt(R.pts[top])}</span></span></button>`;
+    return cell(gs[gs.length - 1], `第 ${no} 半庄`);
   }).join('');
+}
+function renderCasual(games) {
+  document.getElementById('casualFold').hidden = !games.length;
+  document.getElementById('casualSum').textContent = `${games.length} 局 · 不计入排名和个人数据`;
+  document.getElementById('schedCasual').innerHTML = games.slice().sort((a, b) => a.no - b.no || (a.createdAt || 0) - (b.createdAt || 0)).map(g => cell(g, gameName(g))).join('');
 }
 
 function renderGame(g) {
@@ -477,6 +488,7 @@ function renderGame(g) {
     <div class="ghead"><span class="gno">${gameName(g)}</span><span class="state">${R.done ? '终局' : roundLabel(R.r, R.h)}</span>
       <span class="muted small">本场 ${R.done ? '–' : R.h} · 供托 ${R.pot} · 已记录 ${(g.hands || []).length} 局</span></div>
     <div class="board">${seats}</div>
+    ${isCasual(g) ? `<p class="muted small">娱乐局，不计入排名和个人数据。</p>` : ''}
     ${g.final ? `<p class="muted small">终局点数为直接录入。</p>` : ''}
     <div class="card"><h3>牌谱</h3>${log}</div>`;
 }
@@ -511,13 +523,13 @@ document.addEventListener('click', e => {
     return;
   }
   const { list, reg, all, worst } = stats();
-  const po = S.games.filter(isPO), regGames = S.games.filter(g => !isPO(g));
+  const po = S.games.filter(isPO), regGames = S.games.filter(g => !g.stage);
   renderMatch(); renderRank(list);
   document.getElementById('fullWrap').hidden = !po.length; renderFull('full', list, false);
   renderFull('fullReg', reg, true);
   document.getElementById('regSum').textContent = `${regGames.length} 个半庄 · ` + reg.filter(x => x.n && !x.backup).map(x => `${x.name} ${fmtPt(x.carry)}`).join(' · ');
   renderStats(all, worst);
-  renderSched('sched', po, PLAYOFF); renderSched('schedReg', regGames, TOTAL);
+  renderSched('sched', po, PLAYOFF); renderSched('schedReg', regGames, TOTAL); renderCasual(S.games.filter(isCasual));
   if (S.syncedAt) document.getElementById('synced').textContent = `成绩更新于 ${new Date(S.syncedAt).toLocaleString('zh-CN', { hour12: false })}`;
 })();
 </script>

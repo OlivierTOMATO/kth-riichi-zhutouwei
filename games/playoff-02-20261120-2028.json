@@ -1,0 +1,20 @@
+{
+  "_players": "Lihan / Dean / Snowhite / CJ",
+  "no": 2,
+  "stage": "playoff",
+  "table": "",
+  "seats": ["p_lihan","p_dean","p_snowhite","p_cj"],
+  "final": null,
+  "createdAt": 1795202918052,
+  "scorer": "Lanslie",
+  "hands": [
+    {"kind":"ron","winner":2,"loser":1,"han":3,"fu":40,"riichi":[2]},
+    {"kind":"ron","winner":2,"loser":0,"han":2,"fu":30,"riichi":[1]},
+    {"kind":"tsumo","winner":3,"han":3,"fu":30,"riichi":[1]},
+    {"kind":"tsumo","winner":2,"han":2,"fu":30,"riichi":[0,1]},
+    {"kind":"ron","winner":1,"loser":0,"han":2,"fu":30,"riichi":[]},
+    {"kind":"ron","winner":2,"loser":0,"han":4,"fu":25,"riichi":[]},
+    {"kind":"tsumo","winner":1,"han":5,"fu":30,"riichi":[]},
+    {"kind":"ron","winner":2,"loser":1,"han":5,"fu":30,"riichi":[1,2]}
+  ]
+}

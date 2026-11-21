@@ -1,4 +1,6 @@
-# 猪头位 · KTH 立直麻将公开赛
+# KTH Open · KTH 立直麻将公开赛
+
+Champion titles change every season: season 1 「猪头位」, season 2 「水牛位」.
 
 Site: https://oliviertomato.github.io/kth-riichi-zhutouwei/ (M.LEAGUE rules, 切上满贯).
 

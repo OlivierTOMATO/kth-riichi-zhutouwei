@@ -181,6 +181,8 @@ def main():
                 (out / name).write_text(html)
             else:
                 shutil.copy(ROOT / name, out / name)
+        if (ROOT / "img").is_dir():
+            shutil.copytree(ROOT / "img", out / "img", dirs_exist_ok=True)
     data = {"syncedAt": int(time.time() * 1000), "roster": roster, "games": games}
     (out / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
     print(f"data.json: {len(roster)} players, {len(games)} games, {sum(len(g['hands']) for g in games)} hands -> {out}")

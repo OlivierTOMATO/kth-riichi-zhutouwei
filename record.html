@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>记录成绩 · 水牛位</title>
-<meta name="description" content="水牛位记分页：逐局记录一个半庄，终局后发链接给主办方审核，不需要账号。">
+<title>记录成绩 · 猪头位</title>
+<meta name="description" content="猪头位记分页：逐局记录一个半庄，终局后发链接给主办方审核，不需要账号。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
@@ -175,10 +175,10 @@ header a.home{color:var(--muted);font-size:13px;text-decoration:none;white-space
 <body>
 <div class="wrap">
   <header>
-    <div class="seal" aria-hidden="true">牛</div>
+    <div class="seal" aria-hidden="true">猪</div>
     <div class="htxt">
       <h1>记录成绩</h1>
-      <div class="sub">水牛位 · M.LEAGUE 规则（有切上满贯）· 终局后发给主办方，审核通过后公布</div>
+      <div class="sub">猪头位 · M.LEAGUE 规则（有切上满贯）· 终局后发给主办方，审核通过后公布</div>
     </div>
     <a class="home" href="./">← 返回首页</a>
   </header>
@@ -397,7 +397,7 @@ async function refreshLink() {
 }
 function summaryText(g) {
   const R = replay(g), order = [0, 1, 2, 3].sort((a, b) => R.rank[a] - R.rank[b]);
-  return `水牛位 · ${gameName(g)}成绩${g.scorer ? `（记录人：${g.scorer}）` : ''}\n` +
+  return `猪头位 · ${gameName(g)}成绩${g.scorer ? `（记录人：${g.scorer}）` : ''}\n` +
     order.map(i => `${R.rank[i] + 1}位 ${nameOf(g.seats[i])} ${R.scores[i]}（${fmtPt(R.pts[i])}）`).join('\n') + '\n打开链接核对并发布：';
 }
 async function copyText(t) { try { await navigator.clipboard.writeText(t); return true; } catch { return false; } }
@@ -528,7 +528,7 @@ document.getElementById('app').addEventListener('click', async e => {
       if (!S.link) return;
       const text = summaryText(g), url = S.link.url;
       if (navigator.share) {
-        try { await navigator.share({ title: `水牛位 · ${gameName(g)}`, text, url }); S.submitted = true; break; }
+        try { await navigator.share({ title: `猪头位 · ${gameName(g)}`, text, url }); S.submitted = true; break; }
         catch (err) { if (err && err.name === 'AbortError') return; }
       }
       if (await copyText(text + '\n' + url)) toast('已复制，粘贴到微信发给主办方即可。');

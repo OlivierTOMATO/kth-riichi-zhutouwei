@@ -21,8 +21,9 @@
    "name": "Lanslie"
   },
   {
-   "id": "p_max",
-   "name": "Max"
+   "id": "p_estelle",
+   "name": "Estelle",
+   "backup": true
   }
  ]
 }

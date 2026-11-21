@@ -28,7 +28,7 @@ KINDS = {"ron", "tsumo", "draw", "manual"}
 HANS = {1, 2, 3, 4, 5, 6, 8, 11, 13, 26, 39}
 FUS = {20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110}
 TOTAL = 20
-PLAYOFF = 4
+PLAYOFF = 8                   # largest playoff no. across seasons (season 1 used 4)
 CASUAL = 999  # 娱乐局: not scored, numbered freely
 
 

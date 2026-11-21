@@ -234,7 +234,7 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
     <div>
       <div class="eyebrow">KTH RIICHI OPEN · 第二届</div>
       <h1>水牛<span class="r">位</span></h1>
-      <p class="lead">第二届开打：常规赛一共 20 个半庄，选手和替补轮流上桌。打满 12 局的选手按平均积分排名，前 4 名进决赛桌争夺「水牛位」；第一届猪头位 CJ 保底。</p>
+      <p class="lead">第二届开打：常规赛一共 20 个半庄，选手和替补轮流上桌。排行榜实时显示总积分，常规赛结束时打满 12 局的前 4 名进决赛桌争夺「水牛位」；第一届猪头位 CJ 保底。</p>
       <div class="facts"><span>M.LEAGUE 规则</span><span>有切上满贯</span><span>常规赛 20 个半庄</span><span>每人至少 12 局</span><span>决赛桌 8 个半庄</span><span>第一届猪头位：CJ</span></div>
     </div>
     <div class="match" id="match"><div class="head"><b>读取中…</b></div></div>
@@ -245,9 +245,9 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
       <div class="eyebrow">ABOUT</div>
       <h2>什么是水牛位</h2>
       <p class="big">牌桌上没有永远的赢家，<br>但总有一头水牛。</p>
-      <p>KTH Open（KTH 立直麻将公开赛）每一届冠军的头衔都不一样：第一届叫「猪头位」，第二届叫「水牛位」。第二届常规赛一共 20 个半庄，选手和替补轮流上桌，每个人打的局数不一样，所以按平均每局积分排名：<b>折算分 = 平均每局积分 × 10</b>。</p>
-      <p>打满 12 局的选手里，折算分前 4 名进决赛桌。第一届猪头位 CJ 只要打满 12 局就保底进决赛桌：排不进前 4 时顶替第 4 名，负分也照带。替补不进决赛桌。</p>
-      <p>决赛桌打 8 个半庄，<b>总积分 = 折算分 × ½ + 决赛积分</b>，决定最后的名次。<a href="s1/">第一届的成绩和颁奖合影</a>在存档里。</p>
+      <p>KTH Open（KTH 立直麻将公开赛）每一届冠军的头衔都不一样：第一届叫「猪头位」，第二届叫「水牛位」。第二届常规赛一共 20 个半庄，选手和替补轮流上桌，排行榜实时显示每个人的常规赛总积分。</p>
+      <p>常规赛结束时，打满 12 局的选手里总积分前 4 名进决赛桌。第一届猪头位 CJ 只要打满 12 局就保底进决赛桌：排不进前 4 时顶替第 4 名，负分也照带。替补不进决赛桌。</p>
+      <p>每个人打的局数不一样，所以进决赛桌时才按局数加权：<b>带入分 = 常规赛积分 × 12 ÷ 本人局数 × ½</b>。打满 12 局的人，带入的正好是常规赛积分的一半；打得更多的人按比例折算。决赛桌打 8 个半庄，<b>总积分 = 带入分 + 决赛积分</b>，决定最后的名次。<a href="s1/">第一届的成绩和颁奖合影</a>在存档里。</p>
       <p class="muted">每个半庄由选手在「记录成绩」页面逐局记录，终局后提交，主办方审核通过后公布在这里。</p>
     </div>
     <div class="prizes">
@@ -264,7 +264,7 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
     <h2 id="rankTitle">常规赛排行榜</h2>
     <div class="rank" id="rank"></div>
     <div class="tablewrap" id="fullWrap"><table><thead id="fullHead"></thead><tbody id="full"></tbody></table></div>
-    <p class="muted small" style="margin-top:14px">折算分 = 常规赛积分 ÷ 本人常规赛半庄数 × 10（平均每局积分 × 10），四舍五入到 0.1，按折算分排名；同分先比平均顺位，再比一位次数。打满 12 局的选手里折算分前 4 名进决赛桌；第一届猪头位 CJ 打满 12 局即保底，排不进前 4 时顶替第 4 名。常规赛没打完时，排行榜上的「暂列决赛桌」不看 12 局门槛。决赛桌总积分 = 折算分 × ½ + 决赛积分。每个半庄的积分 =（终局点数 − 30000）/ 1000 + 顺位马（+30 / +10 / −10 / −30），第 1 名另加头名奖励 +20（4 人各 5000 点的差额）；同点者平分；罚则（如错和 −20）另计。只计已终局的半庄。</p>
+    <p class="muted small" style="margin-top:14px">常规赛排行榜按常规赛总积分实时排名；同分先比平均顺位，再比一位次数。常规赛结束时，打满 12 局的选手里总积分前 4 名进决赛桌；第一届猪头位 CJ 打满 12 局即保底，排不进前 4 时顶替第 4 名。常规赛没打完时，「暂列决赛桌」不看 12 局门槛；带入分在打满 12 局后才显示。进决赛桌时才按局数加权：带入分 = 常规赛积分 × 12 ÷ 本人常规赛半庄数 × ½（四舍五入到 0.1）；决赛桌总积分 = 带入分 + 决赛积分。每个半庄的积分 =（终局点数 − 30000）/ 1000 + 顺位马（+30 / +10 / −10 / −30），第 1 名另加头名奖励 +20（4 人各 5000 点的差额）；同点者平分；罚则（如错和 −20）另计。只计已终局的半庄。</p>
     <details class="fold" id="regFold" hidden><summary>常规赛最终成绩<small id="regSum"></small></summary><div class="fold-in">
       <div class="tablewrap"><table><thead id="fullRegHead"></thead><tbody id="fullReg"></tbody></table></div>
     </div></details>
@@ -363,9 +363,10 @@ function stats() {
   const regGames = S.games.filter(g => !g.stage), poGames = S.games.filter(isPO);
   const regOver = poGames.length > 0 || regGames.filter(g => replay(g).done).length >= TOTAL;
   const reg = tally(regGames).list;
-  for (const x of reg) { x.norm = x.n ? r1(x.pt * NORM / x.n) : 0; x.carry = r1(x.norm * CARRY); x.short = regOver && !x.backup && x.n < MIN; }
-  reg.sort((a, b) => a.backup - b.backup || a.short - b.short || byKey('norm')(a, b));   // 常规赛打完后，未满 MIN 局的排在合格选手后面，不给名次
-  // 决赛桌：非替补里按折算分取前 FINAL 名（常规赛打完后要满 MIN 局）；SEED 合格但排不进时顶替最后一席
+  // 常规赛只看总积分；进决赛桌时才按局数加权：带入分 = 积分 × NORM ÷ 局数 × CARRY
+  for (const x of reg) { x.carry = x.n ? r1(x.pt * NORM / x.n * CARRY) : 0; x.short = regOver && !x.backup && x.n < MIN; }
+  reg.sort((a, b) => a.backup - b.backup || a.short - b.short || byKey('pt')(a, b));   // 常规赛打完后，未满 MIN 局的排在合格选手后面，不给名次
+  // 决赛桌：非替补里按常规赛总积分取前 FINAL 名（常规赛打完后要满 MIN 局）；SEED 合格但排不进时顶替最后一席
   const pool = reg.filter(x => !x.backup && x.n > 0 && (!regOver || x.n >= MIN));
   const top = pool.slice(0, FINAL), seed = pool.find(x => x.id === SEED);
   const seats = seed && !top.includes(seed) ? [...top.slice(0, FINAL - 1), seed] : top;
@@ -411,18 +412,18 @@ const dist = x => x.n ? `<div class="bars" title="1/2/3/4 位次数">${x.ranks.m
 function renderRegRank(reg, regOver) {
   const el = document.getElementById('rank');
   if (!reg.length) { el.innerHTML = `<div class="empty">还没有选手。</div>`; return; }
-  const head = `<div class="rrow h"><span>名次</span><span>选手</span><span class="v">折算分</span><span class="v hide-s">常规赛积分</span><span class="v hide-s">半庄</span><span class="v hide-s">带入决赛</span></div>`;
+  const head = `<div class="rrow h"><span>名次</span><span>选手</span><span class="v">常规赛积分</span><span class="v hide-s">半庄</span><span class="v hide-s">每局平均</span><span class="v hide-s">带入决赛</span></div>`;
   el.innerHTML = head + reg.map((x, i) => {
     const tags = (x.final ? badge(regOver ? '决赛桌' : '暂列决赛桌', 'var(--felt)') : '') + (x.id === SEED ? badge(x.viaSeed ? SEED_TITLE + ' · 保底' : SEED_TITLE, 'var(--aka)') : '')
       + (x.short ? `<span class="short">未满 ${MIN} 局</span>` : '');
     return `<div class="rrow ${x.backup ? 'bk' : x.n && i === 0 ? 'r1' : x.final ? 'fin' : ''}">
       <span class="pos-n">${x.backup ? `<span class="sub">${x.guest ? '客人' : '替补'}</span>` : x.n && !x.short ? i + 1 : '–'}</span>
       <div><div class="who">${esc(x.name)}${tags}</div>
-        <div class="muted small num show-s">${x.n} 局 · 常规赛 ${fmtPt(x.pt)}${x.backup || x.short ? '' : ` · 带入 ${fmtPt(x.carry)}`}</div>${dist(x)}</div>
-      <span class="v pt ${sign(x.norm)}">${x.n ? fmtPt(x.norm) : '—'}</span>
-      <span class="v hide-s ${sign(x.pt)}">${x.n ? fmtPt(x.pt) : '—'}</span>
+        <div class="muted small num show-s">${x.n} 局 · 常规赛 ${fmtPt(x.pt)}${x.backup || x.n < MIN ? '' : ` · 带入 ${fmtPt(x.carry)}`}</div>${dist(x)}</div>
+      <span class="v pt ${sign(x.pt)}">${x.n ? fmtPt(x.pt) : '—'}</span>
       <span class="v hide-s">${x.n}${x.n < MIN && !x.backup ? `<span class="muted">/${MIN}</span>` : ''}</span>
-      <span class="v hide-s ${sign(x.carry)}">${x.n && !x.backup && !x.short ? fmtPt(x.carry) : '—'}</span>
+      <span class="v hide-s ${sign(x.pt)}">${x.n ? fmtPt(r1(x.pt / x.n)) : '—'}</span>
+      <span class="v hide-s ${sign(x.carry)}">${x.n >= MIN && !x.backup ? fmtPt(x.carry) : '—'}</span>
     </div>`;
   }).join('');
 }
@@ -442,11 +443,11 @@ function renderRank(list) {
 }
 
 function renderFull(id, list, reg) {
-  document.getElementById(id + 'Head').innerHTML = `<tr><th>#</th><th>选手</th>${reg ? '<th>折算分</th><th>常规赛积分</th>' : '<th>决赛积分</th>'}<th>半庄</th><th>1/2/3/4 位</th><th>平均顺位</th><th>和了率</th><th>平均打点</th><th>放铳率</th><th>平均放铳</th><th>立直</th></tr>`;
+  document.getElementById(id + 'Head').innerHTML = `<tr><th>#</th><th>选手</th>${reg ? '<th>常规赛积分</th><th>带入决赛</th>' : '<th>决赛积分</th>'}<th>半庄</th><th>1/2/3/4 位</th><th>平均顺位</th><th>和了率</th><th>平均打点</th><th>放铳率</th><th>平均放铳</th><th>立直</th></tr>`;
   document.getElementById(id).innerHTML = list.map((x, i) => `<tr>
     <td>${x.backup ? (x.guest ? '客人' : '替补') : x.n && !x.short ? i + 1 : '–'}</td><td>${esc(x.name)}${x.backup ? `<span class="muted">（${x.guest ? '客人' : '替补'}）</span>` : ''}</td>
-    ${reg ? `<td class="${sign(x.norm)}"><b>${x.n ? fmtPt(x.norm) : '–'}</b></td>` : ''}
-    <td class="${sign(x.pt)}">${reg ? '' : '<b>'}${x.n ? fmtPt(x.pt) : '–'}${reg ? '' : '</b>'}</td>
+    <td class="${sign(x.pt)}"><b>${x.n ? fmtPt(x.pt) : '–'}</b></td>
+    ${reg ? `<td class="${sign(x.carry)}">${x.n >= MIN && !x.backup ? fmtPt(x.carry) : '–'}</td>` : ''}
     <td>${x.n}</td><td>${x.ranks.join(' / ')}</td>
     <td>${x.avg != null ? x.avg.toFixed(2) : '–'}</td>
     <td>${x.hands ? (x.win / x.hands * 100).toFixed(1) + '%' : '–'}</td>
@@ -565,7 +566,7 @@ document.addEventListener('click', e => {
   if (playoff) {
     renderRank(list); renderFull('full', list, false); renderFull('fullReg', reg, true);
     document.getElementById('regFold').hidden = false;
-    document.getElementById('regSum').textContent = `${regGames.length} 个半庄 · ` + reg.filter(x => x.final).map(x => `${x.name} ${fmtPt(x.norm)}`).join(' · ');
+    document.getElementById('regSum').textContent = `${regGames.length} 个半庄 · ` + reg.filter(x => x.final).map(x => `${x.name} ${fmtPt(x.pt)}`).join(' · ');
   } else {
     renderRegRank(reg, regOver); renderFull('full', reg, true);
   }

@@ -8,8 +8,8 @@ const START = 25000, RETURN = 30000;
 const SEASON = 2;
 const TOTAL = 20;                           // 常规赛一共 20 个半庄，5–6 人加替补轮流上桌
 const MIN = 12;                             // 至少打满 12 局才能进决赛桌
-const NORM = 10;                            // 折算分 = 平均每局积分 × 10
-const CARRY = 0.5;                          // 折算分减半带入决赛桌
+const NORM = 12;                            // 进决赛桌时，常规赛积分按局数折算到 12 局（积分 × 12 ÷ 局数）
+const CARRY = 0.5;                          // 折算后再减半带入决赛桌；常规赛排行榜本身只看总积分
 const FINAL = 4, PLAYOFF = 8;               // 决赛桌 4 人，打 8 个半庄
 const SEED = 'p_cj', SEED_TITLE = '第一届猪头位';  // 第一届冠军（第一届头衔叫猪头位，第二届叫水牛位）：满 12 局即保底进决赛桌（排不进前 4 就顶替第 4 名）
 const STAGES = { playoff: PLAYOFF, casual: 999 };    // stage → 编号上限；常规赛不写 stage；娱乐局不计分

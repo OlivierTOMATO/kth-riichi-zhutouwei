@@ -5,10 +5,11 @@ Champion titles change every season: season 1 「猪头位」, season 2 「水�
 Site: https://oliviertomato.github.io/kth-riichi-zhutouwei/ (M.LEAGUE rules, 切上满贯).
 
 **Season 2 (current).** Regular season: 20 hanchan, 6 players (Estelle is a backup) rotating in, so game counts
-differ. Ranking uses 折算分 = average points per hanchan × 10. Players with at least 12 regular hanchan
-qualify; the top 4 by 折算分 make the final table. The season-1 champion (CJ, `SEED`, shown as 「第一届猪头位」; season titles: S1 猪头位, S2 水牛位) is guaranteed a seat
+differ. The regular-season ranking shows raw total points, live. At the end, players with at least 12 regular
+hanchan qualify; the top 4 by total points make the final table. The season-1 champion (CJ, `SEED`, shown as 「第一届猪头位」; season titles: S1 猪头位, S2 水牛位) is guaranteed a seat
 if they played 12: outside the top 4, they replace 4th place and carry their own (possibly negative) points.
-Backups never make the final table. Titles: 水牛位 / 牛头二号 / 牛头三号, plus 蛮牛 (biggest single deal-in) and 铁牛 (lowest deal-in rate). Final table: 8 hanchan; total = 折算分 × ½ + final-table points.
+Backups never make the final table. Titles: 水牛位 / 牛头二号 / 牛头三号, plus 蛮牛 (biggest single deal-in) and 铁牛 (lowest deal-in rate). Game counts are weighted only when carrying into the final: carry = points × 12 / hanchan played × ½.
+Final table: 8 hanchan; total = carry + final-table points.
 All of these numbers live at the top of `scoring.js` (`TOTAL`, `MIN`, `NORM`, `CARRY`, `FINAL`, `PLAYOFF`, `SEED`, `SEED_TITLE`).
 
 **Season 1 (archived at `/s1/`).** 20 regular hanchan, regular points scaled to 16 hanchan and carried in

@@ -11,7 +11,7 @@ const MIN = 12;                             // 至少打满 12 局才能进决�
 const NORM = 10;                            // 折算分 = 平均每局积分 × 10
 const CARRY = 0.5;                          // 折算分减半带入决赛桌
 const FINAL = 4, PLAYOFF = 8;               // 决赛桌 4 人，打 8 个半庄
-const SEED = 'p_cj', SEED_TITLE = '水牛位';  // 上届猪头位，第二届称号「水牛位」：满 12 局即保底进决赛桌（排不进前 4 就顶替第 4 名）
+const SEED = 'p_cj', SEED_TITLE = '第一代水牛位';  // 第一届冠军：满 12 局即保底进决赛桌（排不进前 4 就顶替第 4 名）
 const STAGES = { playoff: PLAYOFF, casual: 999 };    // stage → 编号上限；常规赛不写 stage；娱乐局不计分
 const stageOf = g => ({ season: SEASON, ...(STAGES[g.stage] ? { stage: g.stage } : {}) });
 const isPO = g => g.stage === 'playoff';
@@ -20,7 +20,7 @@ const gameName = g => isPO(g) ? `决赛第 ${g.no} 半庄` : isCasual(g) ? `娱�
 // 无数え役满：普通役 11 番以上按三倍满封顶；13/26/39 = 役满 / 复合役满
 const HAN_OPTS = [[1,'1 番'],[2,'2 番'],[3,'3 番'],[4,'4 番'],[5,'满贯（5 番）'],[6,'跳满（6–7 番）'],[8,'倍满（8–10 番）'],[11,'三倍满（11 番以上）'],[13,'役满'],[26,'两倍役满（复合）'],[39,'三倍役满（复合）']];
 const FU_OPTS = [20,25,30,40,50,60,70,80,90,100,110];
-const TITLES = ['猪头位','猪头二号','猪头三号'];
+const TITLES = ['水牛位','牛头二号','牛头三号'];   // 第二届头衔（第一届是猪头位 / 猪头二号 / 猪头三号，见 s1/）
 
 const ceil100 = x => Math.ceil(x / 100) * 100;
 function basePts(han, fu) {

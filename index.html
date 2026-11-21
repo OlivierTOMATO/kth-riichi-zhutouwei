@@ -234,8 +234,8 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
     <div>
       <div class="eyebrow">KTH RIICHI OPEN · 第二届</div>
       <h1>猪头<span class="r">位</span></h1>
-      <p class="lead">第二届开打：常规赛一共 20 个半庄，选手和替补轮流上桌。打满 12 局的选手按平均积分排名，前 4 名进决赛桌；「水牛位」CJ（上届猪头位）保底。</p>
-      <div class="facts"><span>M.LEAGUE 规则</span><span>有切上满贯</span><span>常规赛 20 个半庄</span><span>每人至少 12 局</span><span>决赛桌 8 个半庄</span><span>水牛位：CJ</span></div>
+      <p class="lead">第二届开打：常规赛一共 20 个半庄，选手和替补轮流上桌。打满 12 局的选手按平均积分排名，前 4 名进决赛桌争夺「水牛位」；第一代水牛位 CJ 保底。</p>
+      <div class="facts"><span>M.LEAGUE 规则</span><span>有切上满贯</span><span>常规赛 20 个半庄</span><span>每人至少 12 局</span><span>决赛桌 8 个半庄</span><span>第一代水牛位：CJ</span></div>
     </div>
     <div class="match" id="match"><div class="head"><b>读取中…</b></div></div>
   </div></section>
@@ -245,17 +245,17 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
       <div class="eyebrow">ABOUT</div>
       <h2>什么是猪头位</h2>
       <p class="big">牌桌上没有永远的赢家，<br>但总有一个猪头。</p>
-      <p>猪头位是 KTH 立直麻将公开赛的头衔。第二届常规赛一共 20 个半庄，选手和替补轮流上桌，每个人打的局数不一样，所以按平均每局积分排名：<b>折算分 = 平均每局积分 × 10</b>。</p>
-      <p>打满 12 局的选手里，折算分前 4 名进决赛桌。「水牛位」CJ（上届猪头位）只要打满 12 局就保底进决赛桌：排不进前 4 时顶替第 4 名，负分也照带。替补不进决赛桌。</p>
+      <p>猪头位是 KTH 立直麻将公开赛的名字，冠军的头衔叫「水牛位」。第二届常规赛一共 20 个半庄，选手和替补轮流上桌，每个人打的局数不一样，所以按平均每局积分排名：<b>折算分 = 平均每局积分 × 10</b>。</p>
+      <p>打满 12 局的选手里，折算分前 4 名进决赛桌。第一代水牛位 CJ 只要打满 12 局就保底进决赛桌：排不进前 4 时顶替第 4 名，负分也照带。替补不进决赛桌。</p>
       <p>决赛桌打 8 个半庄，<b>总积分 = 折算分 × ½ + 决赛积分</b>，决定最后的名次。<a href="s1/">第一届的成绩和颁奖合影</a>在存档里。</p>
       <p class="muted">每个半庄由选手在「记录成绩」页面逐局记录，终局后提交，主办方审核通过后公布在这里。</p>
     </div>
     <div class="prizes">
-      <div class="prize"><span class="medal m0">壹</span><div><b>猪头位</b><span class="muted small">决赛桌结束时总积分第 1 名，名字永载名人堂。第一届：CJ，第二届起称「水牛位」</span></div></div>
-      <div class="prize"><span class="medal m1">贰</span><div><b>猪头二号</b><span class="muted small">总积分第 2 名</span></div></div>
-      <div class="prize"><span class="medal m2">叁</span><div><b>猪头三号</b><span class="muted small">总积分第 3 名</span></div></div>
-      <div class="prize"><span class="medal m3">铳</span><div><b>最大野猪</b><span class="muted small">全程单次放铳点数最大的选手</span></div></div>
-      <div class="prize"><span class="medal m4">龟</span><div><b>最大乌龟</b><span class="muted small">全程放铳率最低的选手，最会缩头防守</span></div></div>
+      <div class="prize"><span class="medal m0">壹</span><div><b>水牛位</b><span class="muted small">决赛桌结束时总积分第 1 名，名字永载名人堂。第一代：CJ</span></div></div>
+      <div class="prize"><span class="medal m1">贰</span><div><b>牛头二号</b><span class="muted small">总积分第 2 名</span></div></div>
+      <div class="prize"><span class="medal m2">叁</span><div><b>牛头三号</b><span class="muted small">总积分第 3 名</span></div></div>
+      <div class="prize"><span class="medal m3">蛮</span><div><b>蛮牛</b><span class="muted small">全程单次放铳点数最大的选手，横冲直撞撞上大牌</span></div></div>
+      <div class="prize"><span class="medal m4">铁</span><div><b>铁牛</b><span class="muted small">全程放铳率最低的选手，怎么打都不倒</span></div></div>
     </div>
   </div></section>
 
@@ -264,7 +264,7 @@ footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;op
     <h2 id="rankTitle">常规赛排行榜</h2>
     <div class="rank" id="rank"></div>
     <div class="tablewrap" id="fullWrap"><table><thead id="fullHead"></thead><tbody id="full"></tbody></table></div>
-    <p class="muted small" style="margin-top:14px">折算分 = 常规赛积分 ÷ 本人常规赛半庄数 × 10（平均每局积分 × 10），四舍五入到 0.1，按折算分排名；同分先比平均顺位，再比一位次数。打满 12 局的选手里折算分前 4 名进决赛桌；「水牛位」CJ（上届猪头位）打满 12 局即保底，排不进前 4 时顶替第 4 名。常规赛没打完时，排行榜上的「暂列决赛桌」不看 12 局门槛。决赛桌总积分 = 折算分 × ½ + 决赛积分。每个半庄的积分 =（终局点数 − 30000）/ 1000 + 顺位马（+30 / +10 / −10 / −30），第 1 名另加头名奖励 +20（4 人各 5000 点的差额）；同点者平分；罚则（如错和 −20）另计。只计已终局的半庄。</p>
+    <p class="muted small" style="margin-top:14px">折算分 = 常规赛积分 ÷ 本人常规赛半庄数 × 10（平均每局积分 × 10），四舍五入到 0.1，按折算分排名；同分先比平均顺位，再比一位次数。打满 12 局的选手里折算分前 4 名进决赛桌；第一代水牛位 CJ 打满 12 局即保底，排不进前 4 时顶替第 4 名。常规赛没打完时，排行榜上的「暂列决赛桌」不看 12 局门槛。决赛桌总积分 = 折算分 × ½ + 决赛积分。每个半庄的积分 =（终局点数 − 30000）/ 1000 + 顺位马（+30 / +10 / −10 / −30），第 1 名另加头名奖励 +20（4 人各 5000 点的差额）；同点者平分；罚则（如错和 −20）另计。只计已终局的半庄。</p>
     <details class="fold" id="regFold" hidden><summary>常规赛最终成绩<small id="regSum"></small></summary><div class="fold-in">
       <div class="tablewrap"><table><thead id="fullRegHead"></thead><tbody id="fullReg"></tbody></table></div>
     </div></details>
@@ -469,10 +469,10 @@ function renderStats(list, worst) {
     card('平均打点', '每次和了的点数，不含本场、供托', played.filter(x => x.win).slice().sort((a, b) => b.avgWin - a.avgWin).map(x => [x.name, Math.round(x.avgWin).toLocaleString('en-US')])),
     card('平均放铳', '每次放铳的点数，越低越好', played.filter(x => x.dealin).slice().sort((a, b) => a.avgDeal - b.avgDeal).map(x => [x.name, Math.round(x.avgDeal).toLocaleString('en-US')])),
     card('立直次数', '次', by(x => x.riichi, v => v)),
-    `<div class="card"><h3>最大野猪<small>单次放铳最大</small></h3>${worst
+    `<div class="card"><h3>蛮牛<small>单次放铳最大</small></h3>${worst
       ? `<div class="award"><span class="big">−${worst.points.toLocaleString('en-US')}</span><span><b>${esc(nameOf(worst.pid))}</b> 放铳给 ${esc(nameOf(worst.to))}</span><span class="muted small">${gameName(worst.g)} · ${worst.label} · ${worst.hand}</span></div>`
       : `<div class="muted small">还没有放铳记录。</div>`}</div>`,
-    `<div class="card"><h3>最大乌龟<small>放铳率最低</small></h3>${turtle
+    `<div class="card"><h3>铁牛<small>放铳率最低</small></h3>${turtle
       ? `<div class="award"><span class="big" style="color:var(--felt)">${(turtle.dealin / turtle.hands * 100).toFixed(1)}%</span><span><b>${esc(turtle.name)}</b> 放铳 ${turtle.dealin} 次 / 参与 ${turtle.hands} 局</span><span class="muted small">同率时参与局数多者优先</span></div>`
       : `<div class="muted small">第一个半庄结束后显示。</div>`}</div>`,
   ];

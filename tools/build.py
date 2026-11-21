@@ -5,8 +5,11 @@
     python3 tools/build.py --check FILE..  # validate only (used on pull requests)
     python3 tools/build.py --import-export # copy a Claude-recorder export (.export/) into roster.json + games/
 
+Season 1 is archived under s1/ (its own frozen page, scoring.js and roster.json) and built into
+s1/data.json from the game files without a "season" field; data.json holds the current season.
+
 Every game file is one hanchan, in the same shape the recorder page submits:
-    {"no": 1, "stage": "playoff" | "casual" (omit for the regular season), "table": "", "seats": [4 player ids, 东南西北], "hands": [...], "final": null|[4 scores],
+    {"season": 2 (omit for season 1), "no": 1, "stage": "playoff" | "casual" (omit for the regular season), "table": "", "seats": [4 player ids, 东南西北], "hands": [...], "final": null|[4 scores],
      "createdAt": ms, "scorer": "who recorded it"}
 """
 import argparse
@@ -19,6 +22,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 STATIC = ["index.html", "record.html", "scoring.js"]
+SEASON = 2                    # current season; game files without "season" belong to season 1 (archived in s1/)
+ARCHIVE = {1: "s1"}           # archived season -> folder with its own index.html, scoring.js, roster.json
 KINDS = {"ron", "tsumo", "draw", "manual"}
 HANS = {1, 2, 3, 4, 5, 6, 8, 11, 13, 26, 39}
 FUS = {20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110}
@@ -83,6 +88,9 @@ def clean_hand(h, i):
 def clean_game(g, roster_ids, gid):
     if not isinstance(g, dict):
         raise Bad("not a JSON object")
+    season = g.get("season", 1)
+    if season not in (*ARCHIVE, SEASON):
+        raise Bad(f"season must be one of {sorted((*ARCHIVE, SEASON))}")
     stage = g.get("stage") or "regular"
     if stage not in ("regular", "playoff", "casual"):
         raise Bad('stage must be "regular", "playoff" or "casual"')
@@ -107,6 +115,7 @@ def clean_game(g, roster_ids, gid):
         raise Bad("hands must be a list")
     return {
         "id": gid,
+        **({"season": season} if season != 1 else {}),
         "no": no,
         **({"stage": stage} if stage != "regular" else {}),
         "table": str(g.get("table") or "")[:20],
@@ -118,8 +127,8 @@ def clean_game(g, roster_ids, gid):
     }
 
 
-def load_roster():
-    r = json.loads((ROOT / "roster.json").read_text())
+def load_roster(path=ROOT / "roster.json"):
+    r = json.loads(path.read_text())
     players = [{"id": str(p["id"]), "name": str(p["name"])[:24], **({"backup": True} if p.get("backup") else {}),
                 **({"guest": True} if p.get("guest") else {})}
                for p in r["players"]]
@@ -162,7 +171,8 @@ def main():
     if a.import_export:
         import_export()
     roster, ids = load_roster()
-    games, errors = load_games(ids, a.check or None)
+    old = {n: load_roster(ROOT / d / "roster.json") for n, d in ARCHIVE.items()}
+    games, errors = load_games(ids.union(*(i for _, i in old.values())), a.check or None)
     for e in errors:
         print("ERROR", e, file=sys.stderr)
     if errors:
@@ -173,19 +183,30 @@ def main():
     out = (ROOT / a.out).resolve()
     out.mkdir(parents=True, exist_ok=True)
     if out != ROOT:
-        # Stamp the shared script with a version so browsers never pair a new page with a cached old scoring.js.
-        ver = hashlib.sha1((ROOT / "scoring.js").read_bytes()).hexdigest()[:10]
-        for name in STATIC:
-            if name.endswith(".html"):
-                html = (ROOT / name).read_text().replace('src="scoring.js"', f'src="scoring.js?v={ver}"')
-                (out / name).write_text(html)
-            else:
-                shutil.copy(ROOT / name, out / name)
+        copy_static(ROOT, out, STATIC)
+        for d in ARCHIVE.values():
+            copy_static(ROOT / d, out / d, ["index.html", "scoring.js"])
         if (ROOT / "img").is_dir():
             shutil.copytree(ROOT / "img", out / "img", dirs_exist_ok=True)
-    data = {"syncedAt": int(time.time() * 1000), "roster": roster, "games": games}
-    (out / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
-    print(f"data.json: {len(roster)} players, {len(games)} games, {sum(len(g['hands']) for g in games)} hands -> {out}")
+    now = int(time.time() * 1000)
+    seasons = [(SEASON, out, roster)] + [(n, out / d, old[n][0]) for n, d in ARCHIVE.items()]
+    for n, where, r in seasons:
+        gs = [g for g in games if g.get("season", 1) == n]
+        where.mkdir(parents=True, exist_ok=True)
+        data = {"syncedAt": now, "season": n, "roster": r, "games": gs}
+        (where / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
+        print(f"season {n} data.json: {len(r)} players, {len(gs)} games, {sum(len(g['hands']) for g in gs)} hands -> {where}")
+
+
+def copy_static(src, dst, names):
+    """Copies the pages, stamping scoring.js with a version so browsers never pair a new page with a cached old script."""
+    dst.mkdir(parents=True, exist_ok=True)
+    ver = hashlib.sha1((src / "scoring.js").read_bytes()).hexdigest()[:10]
+    for name in names:
+        if name.endswith(".html"):
+            (dst / name).write_text((src / name).read_text().replace('src="scoring.js"', f'src="scoring.js?v={ver}"'))
+        else:
+            shutil.copy(src / name, dst / name)
 
 
 if __name__ == "__main__":

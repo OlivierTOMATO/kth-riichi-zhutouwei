@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>猪头位 · 第一届</title>
+<meta name="description" content="KTH 立直麻将公开赛「猪头位」官方页面：M.LEAGUE 规则，常规赛 20 个半庄 + 季后赛 4 个半庄，排行榜、个人数据、赛程与牌谱。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: full-bleed bands (hero, intro, ranking, stats, schedule, rules), each with a centred 1080px inner column.
+   The hero's match card draws the four players as standing mahjong tiles. */
+:root{
+  --bg:#eef2ee; --band:#e2e9e3; --surface:#fbfcf8; --line:#cfd9d1;
+  --ink:#141f19; --muted:#56665d;
+  --felt:#1b5640; --felt-2:#14402f; --felt-ink:#f1f7f2;
+  --aka:#c3302a; --gold:#9c6f12; --good:#1d7a4b; --bad:#b4372d;
+  --tile:#fbf8ef; --tile-edge:#d8d2bf;
+  --display:"ZCOOL KuaiLe","Noto Sans SC",system-ui,sans-serif;
+  --body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0d1611; --band:#121e17; --surface:#16231b; --line:#29392f;
+  --ink:#e4ebe6; --muted:#93a59a;
+  --felt:#17503b; --felt-2:#0f3a2a; --felt-ink:#eef6f0;
+  --aka:#e65a4d; --gold:#d9a83e; --good:#58c08a; --bad:#ef7a6c;
+  --tile:#ece7d8; --tile-edge:#b9b19a;
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--aka);outline-offset:3px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.in{max-width:1080px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.band{padding-block:64px}
+.band.alt{background:var(--band)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;color:var(--aka);font-weight:600}
+h2{font-family:var(--display);font-weight:400;font-size:40px;line-height:1.1;margin:6px 0 28px;text-wrap:balance}
+h3{font-size:15px;margin:0 0 12px;font-weight:700}
+.muted{color:var(--muted)} .small{font-size:13px}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+
+/* top bar */
+.bar{position:sticky;top:0;z-index:20;background:var(--felt-2);color:var(--felt-ink)}
+.bar .in{display:flex;align-items:center;gap:14px;height:56px}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none}
+.seal{width:34px;height:34px;border-radius:6px;background:var(--aka);color:#fff;display:grid;place-items:center;font-family:var(--display);font-size:22px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3)}
+.mark b{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.04em}
+.bar nav{margin-left:auto;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.bar nav a{text-decoration:none;font-size:14px;padding:6px 10px;border-radius:6px;white-space:nowrap;opacity:.85}
+.bar nav a:hover{opacity:1;background:rgba(255,255,255,.08)}
+.bar nav a.rec{background:var(--aka);color:#fff;opacity:1;font-weight:700}
+
+/* hero */
+.hero{background:var(--felt);color:var(--felt-ink);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;opacity:.07;
+  background-image:repeating-linear-gradient(45deg,#fff 0 1px,transparent 1px 22px),repeating-linear-gradient(-45deg,#fff 0 1px,transparent 1px 22px)}
+.hero .in{position:relative;display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:center;padding-block:56px 64px}
+.hero .eyebrow{color:#ffd7cf}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(72px,12vw,132px);line-height:.95;margin:14px 0 18px;letter-spacing:.02em}
+.hero h1 .r{color:#ff8a7d}
+.hero p.lead{font-size:18px;max-width:30em;margin:0 0 24px;opacity:.92}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.facts span{border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:4px 12px;font-size:13px}
+
+.match{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:20px}
+.match .head{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.match .head b{font-family:var(--display);font-weight:400;font-size:26px}
+.match .head .st{font-size:13px;border-radius:999px;padding:2px 10px;background:var(--aka);color:#fff}
+.match .head .st.done{background:rgba(255,255,255,.18)}
+.match .head .meta{margin-left:auto;font-size:13px;opacity:.8}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tile{background:var(--tile);color:#1b1a14;border-radius:10px;padding:14px 10px 12px;text-align:center;position:relative;min-width:0;
+  box-shadow:0 6px 0 var(--tile-edge),0 7px 0 #2a6a50,0 14px 18px rgba(0,0,0,.25)}
+.tile .w{font-family:var(--display);font-size:30px;line-height:1;color:#1b1a14}
+.tile .w.d{color:#c3302a}
+.tile .n{font-weight:700;margin-top:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile .s{font-family:var(--mono);font-weight:600;font-size:18px;margin-top:2px}
+.tile .p{font-size:12px;color:#6a6555;font-family:var(--mono)}
+.tile .oya{position:absolute;top:8px;right:8px;font-size:11px;font-weight:700;color:#c3302a}
+.match .foot{display:flex;justify-content:space-between;margin-top:22px;font-size:13px;opacity:.85;gap:10px;flex-wrap:wrap}
+.match button.link{background:none;border:0;padding:0;color:#ffd7cf;text-decoration:underline;text-underline-offset:3px}
+
+/* intro */
+.intro{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:start}
+.intro .big{font-family:var(--display);font-size:32px;line-height:1.35;margin:0 0 18px;text-wrap:balance}
+.intro p{margin:0 0 14px;max-width:34em}
+.prizes{display:flex;flex-direction:column;gap:10px}
+.prize{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.prize .medal{width:56px;height:56px;border-radius:10px;display:grid;place-items:center;font-family:var(--display);font-size:24px;color:#fff}
+.prize b{font-family:var(--display);font-weight:400;font-size:22px;display:block;line-height:1.2}
+.m0{background:var(--aka)} .m1{background:var(--gold)} .m2{background:var(--felt)} .m3{background:var(--muted)} .m4{background:var(--felt-2)}
+
+/* ranking */
+.rank{display:flex;flex-direction:column;gap:10px}
+.rrow{display:grid;grid-template-columns:64px 1fr repeat(4,minmax(84px,auto));gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 20px}
+.rrow.h{background:none;border:0;padding-block:0;font-size:12px;color:var(--muted);letter-spacing:.06em}
+.rrow .pos-n{font-family:var(--mono);font-size:30px;font-weight:600;line-height:1}
+.rrow .pos-n .sub{font-family:var(--body);font-size:13px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:2px 6px}
+.rrow.bk{background:none;border-style:dashed}
+.rrow.r1{border-color:var(--aka);box-shadow:inset 5px 0 0 var(--aka)}
+.rrow .who{font-weight:700;font-size:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.badge{font-family:var(--display);font-weight:400;font-size:13px;padding:1px 8px;border-radius:4px;color:#fff}
+.rrow .v{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.rrow .pt{font-size:22px;font-weight:600}
+.bars{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--band);margin-top:6px;max-width:220px}
+.bars i{display:block;height:100%}
+.rrow .show-s{display:none}
+
+/* folded regular season */
+details.fold{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+details.fold>summary{cursor:pointer;padding:14px 20px;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::after{content:"展开 ▾";font-weight:400;font-size:13px;color:var(--muted);white-space:nowrap}
+details.fold[open]>summary::after{content:"收起 ▴"}
+details.fold>summary small{font-weight:400;color:var(--muted);font-size:13px;margin-right:auto}
+details.fold .fold-in{padding:0 20px 20px}
+details.fold .tablewrap{margin-top:0}
+
+/* full table */
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-top:22px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:12px;font-weight:600;color:var(--muted);text-align:right;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;font-family:var(--mono);font-variant-numeric:tabular-nums}
+th:nth-child(-n+2),td:nth-child(-n+2){text-align:left}
+td:nth-child(2){font-family:var(--body);font-weight:600}
+tr:last-child td{border-bottom:0}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card h3{display:flex;justify-content:space-between;align-items:baseline}
+.card h3 small{font-weight:400;color:var(--muted);font-size:12px}
+.card ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.card li{display:grid;grid-template-columns:1.6em 1fr auto;gap:8px;font-size:14px;align-items:baseline}
+.card li .i{font-family:var(--mono);color:var(--muted)}
+.card li:first-child{font-weight:700}
+.award{display:flex;flex-direction:column;gap:6px}
+.award .big{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--aka);line-height:1.1}
+
+/* schedule */
+.sched{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cell{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:92px}
+button.cell:hover{border-color:var(--felt)}
+.cell .no{font-family:var(--display);font-size:20px;line-height:1.1}
+.cell .tag{font-size:12px;color:var(--muted)}
+.cell.live{border-color:var(--aka)} .cell.live .tag{color:var(--aka);font-weight:700}
+.cell.done .no{color:var(--felt)}
+.cell.todo{background:none;border-style:dashed}
+.cell .top1{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* rules */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.rule{border-top:2px solid var(--felt);padding-top:10px}
+.rule b{display:block;font-size:14px}
+.rule span{font-size:14px;color:var(--muted)}
+
+footer{background:var(--felt-2);color:var(--felt-ink);padding-block:28px;font-size:13px}
+footer .in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;opacity:.85}
+
+/* game detail */
+#detail{padding-block:32px 64px}
+.back{background:none;border:0;color:var(--muted);padding:0;margin-bottom:12px}
+.ghead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.ghead .gno{font-family:var(--display);font-size:32px}
+.ghead .state{font-family:var(--display);font-size:22px;color:var(--felt)}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.seat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:2px;position:relative;min-width:0}
+.seat.dealer{border-color:var(--aka);box-shadow:inset 0 3px 0 var(--aka)}
+.seat .wind{font-family:var(--display);font-size:22px;line-height:1}
+.seat .who{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat .sc{font-family:var(--mono);font-size:24px;font-weight:600}
+.seat .meta{font-size:12px;color:var(--muted)}
+.seat .dtag{position:absolute;top:10px;right:10px;font-size:11px;color:var(--aka);font-weight:700}
+.hl{display:grid;grid-template-columns:7.5em 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.hl:last-child{border-bottom:0}
+.hl .rd{font-size:13px;color:var(--muted)}
+.hl .ds{font-size:12px;color:var(--muted);font-family:var(--mono)}
+
+/* award photo */
+.photo{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.photo img{display:block;width:100%;height:auto}
+.photo figcaption{padding:12px 16px;font-size:13px;color:var(--muted)}
+
+.empty{color:var(--muted);text-align:center;padding:28px 12px;border:1px dashed var(--line);border-radius:12px}
+
+@media (max-width:860px){
+  .hero .in,.intro{grid-template-columns:1fr;gap:32px}
+  .sched{grid-template-columns:repeat(2,1fr)}
+  .rrow{grid-template-columns:44px 1fr auto;gap:10px;padding:12px 14px}
+  .rrow .hide-s{display:none}
+  .rrow .show-s{display:block}
+  .rrow .pos-n{font-size:24px}
+  h2{font-size:32px}
+  .band{padding-block:48px}
+}
+@media (max-width:560px){
+  .tiles{gap:8px}
+  .tile{padding:12px 4px 10px}
+  .tile .w{font-size:24px}
+  .tile .s{font-size:15px}
+  .board{grid-template-columns:repeat(2,1fr)}
+  .hl{grid-template-columns:1fr;gap:2px}
+  .bar nav a{padding:6px 7px;font-size:13px}
+  .mark b{display:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="bar"><div class="in">
+  <a class="mark" href="#top" data-home><span class="seal" aria-hidden="true">猪</span><b>猪头位</b></a>
+  <nav>
+    <a href="#awards" data-home>颁奖</a>
+    <a href="#ranking" data-home>排行榜</a>
+    <a href="#stats" data-home>个人数据</a>
+    <a href="#schedule" data-home>赛程</a>
+    <a href="#rules" data-home>规则</a>
+    <a href="../" class="rec">第二届 →</a>
+  </nav>
+</div></div>
+
+<div id="home">
+  <section class="hero" id="top"><div class="in">
+    <div>
+      <div class="eyebrow">KTH RIICHI OPEN · 第一届 · 存档</div>
+      <h1>猪头<span class="r">位</span></h1>
+      <p class="lead">20 个常规赛半庄，4 个季后赛半庄，第一届已经结束。第一代「猪头位」：CJ。</p>
+      <div class="facts"><span>M.LEAGUE 规则</span><span>有切上满贯</span><span>常规赛 20 个半庄</span><span>季后赛 4 个半庄</span><span>KTH 校园</span></div>
+    </div>
+    <div class="match" id="match"><div class="head"><b>读取中…</b></div></div>
+  </div></section>
+
+  <section class="band alt" id="awards"><div class="in">
+    <div class="eyebrow">CEREMONY</div>
+    <h2>颁奖</h2>
+    <figure class="photo">
+      <img src="../img/awards-2026.jpg" width="1800" height="1586" loading="lazy" alt="第一届猪头位颁奖合影，从左到右：Snowhite、Lihan、CJ、Dean">
+      <figcaption>从左到右：Snowhite（最大野猪）、Lihan（猪头三号）、CJ（猪头位、最大乌龟）、Dean（猪头二号）。</figcaption>
+    </figure>
+  </div></section>
+
+  <section class="band"><div class="in intro">
+    <div>
+      <div class="eyebrow">ABOUT</div>
+      <h2>什么是猪头位</h2>
+      <p class="big">牌桌上没有永远的赢家，<br>但总有一个猪头。</p>
+      <p>猪头位是 KTH 立直麻将公开赛的头衔。四位选手按 M.LEAGUE 规则先打完 20 个半庄的常规赛，因为有替补上场，每人场数不同，常规赛积分统一折算到 16 个半庄，再全额带入 4 个半庄的季后赛。季后赛结束时的总积分决定最后的名次。</p>
+      <p class="muted">每个半庄由选手在「记录成绩」页面逐局记录，终局后提交，主办方审核通过后公布在这里。</p>
+    </div>
+    <div class="prizes">
+      <div class="prize"><span class="medal m0">壹</span><div><b>猪头位</b><span class="muted small">季后赛结束时总积分第 1 名，名字永载名人堂</span></div></div>
+      <div class="prize"><span class="medal m1">贰</span><div><b>猪头二号</b><span class="muted small">总积分第 2 名</span></div></div>
+      <div class="prize"><span class="medal m2">叁</span><div><b>猪头三号</b><span class="muted small">总积分第 3 名</span></div></div>
+      <div class="prize"><span class="medal m3">铳</span><div><b>最大野猪</b><span class="muted small">全程单次放铳点数最大的选手</span></div></div>
+      <div class="prize"><span class="medal m4">龟</span><div><b>最大乌龟</b><span class="muted small">全程放铳率最低的选手，最会缩头防守</span></div></div>
+    </div>
+  </div></section>
+
+  <section class="band alt" id="ranking"><div class="in">
+    <div class="eyebrow">RANKING</div>
+    <h2>季后赛排行榜</h2>
+    <div class="rank" id="rank"></div>
+    <div class="tablewrap" id="fullWrap" hidden><table>
+      <thead><tr><th>#</th><th>选手</th><th>季后赛积分</th><th>半庄</th><th>1/2/3/4 位</th><th>平均顺位</th><th>和了率</th><th>平均打点</th><th>放铳率</th><th>平均放铳</th><th>立直</th></tr></thead>
+      <tbody id="full"></tbody></table></div>
+    <p class="muted small" style="margin-top:14px">总积分 = 常规赛折算分 + 季后赛积分。常规赛折算分 = 常规赛积分 × 16 / 本人常规赛半庄数（四舍五入到 0.1），全额带入季后赛。每个半庄的积分 =（终局点数 − 30000）/ 1000 + 顺位马（+30 / +10 / −10 / −30），第 1 名另加头名奖励 +20（4 人各 5000 点的差额）；同点者平分；罚则（如错和 −20）另计。只计已终局的半庄。</p>
+    <details class="fold" id="regFold"><summary>常规赛最终成绩<small id="regSum"></small></summary><div class="fold-in">
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>选手</th><th>常规赛积分</th><th>半庄</th><th>折算 16 场</th><th>1/2/3/4 位</th><th>平均顺位</th><th>和了率</th><th>平均打点</th><th>放铳率</th><th>平均放铳</th><th>立直</th></tr></thead>
+        <tbody id="fullReg"></tbody></table></div>
+    </div></details>
+  </div></section>
+
+  <section class="band" id="stats"><div class="in">
+    <div class="eyebrow">PLAYER STATS</div>
+    <h2>个人数据</h2>
+    <p class="muted small" style="margin:-16px 0 18px">常规赛 + 季后赛全程合计。</p>
+    <div class="stats" id="statcards"></div>
+  </div></section>
+
+  <section class="band alt" id="schedule"><div class="in">
+    <div class="eyebrow">SCHEDULE</div>
+    <h2>赛程</h2>
+    <h3>季后赛</h3>
+    <div class="sched" id="sched"></div>
+    <details class="fold"><summary>常规赛 20 个半庄<small>已结束</small></summary><div class="fold-in">
+      <div class="sched" id="schedReg"></div>
+    </div></details>
+    <details class="fold" id="casualFold" hidden><summary>娱乐局<small id="casualSum"></small></summary><div class="fold-in">
+      <div class="sched" id="schedCasual"></div>
+    </div></details>
+  </div></section>
+
+  <section class="band" id="rules"><div class="in">
+    <div class="eyebrow">RULES</div>
+    <h2>比赛规则</h2>
+    <div class="rules">
+      <div class="rule"><b>点数</b><span>25000 点起，30000 点返</span></div>
+      <div class="rule"><b>顺位马</b><span>+30 / +10 / −10 / −30，第 1 名另加头名奖励 +20；同点平分</span></div>
+      <div class="rule"><b>赤宝牌</b><span>万、筒、索的 5 各一枚，共 3 枚</span></div>
+      <div class="rule"><b>食断 · 后付</b><span>都可以</span></div>
+      <div class="rule"><b>切上满贯</b><span>4 番 30 符、3 番 60 符按满贯计</span></div>
+      <div class="rule"><b>役满</b><span>无数え役满，复合役满可以；大三元、大四喜、四杠子有包牌</span></div>
+      <div class="rule"><b>和牌</b><span>头跳，没有双响</span></div>
+      <div class="rule"><b>流局</b><span>没有途中流局，没有流局满贯；听牌料共 3000 点</span></div>
+      <div class="rule"><b>半庄</b><span>东南战，没有西入，没有击飞；南 4 局没有和了止め</span></div>
+      <div class="rule"><b>供托</b><span>流局终局时归第 1 名</span></div>
+      <div class="rule"><b>错和</b><span>积分 −20，本局重打</span></div>
+    </div>
+  </div></section>
+</div>
+
+<main id="detail" hidden><div class="in" id="detailIn"></div></main>
+
+<footer><div class="in">
+  <span>猪头位 · KTH 立直麻将公开赛 · 第一届存档 · <a href="../">回到第二届</a></span>
+  <span id="synced"></span>
+</div></footer>
+
+<script src="scoring.js"></script>
+<script>
+const S = { roster: [], games: [], syncedAt: null };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const nameOf = id => (S.roster.find(p => p.id === id) || {}).name || '（已删除）';
+const fmtPt = v => (v > 0 ? '+' : '') + v.toFixed(1);
+const fmtD = v => v === 0 ? '0' : (v > 0 ? '+' : '') + v;
+const sign = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+const MEDAL = ['var(--aka)', 'var(--gold)', 'var(--felt)'];
+
+function tally(games) {
+  const P = {};
+  for (const p of S.roster) P[p.id] = { id: p.id, name: p.name, backup: !!(p.backup || p.guest), guest: !!p.guest, n: 0, pt: 0, ranks: [0, 0, 0, 0], win: 0, dealin: 0, winPts: 0, dealPts: 0, riichi: 0, hands: 0, best: null };
+  let worst = null;
+  for (const g of games) {
+    const R = replay(g);
+    if (!R.done) continue;
+    g.seats.forEach((pid, i) => {
+      const x = P[pid]; if (!x) return;
+      x.n++; x.pt += R.pts[i]; x.ranks[R.rank[i]]++;
+      if (x.best == null || R.scores[i] > x.best) x.best = R.scores[i];
+    });
+    for (const L of R.log) {
+      const hd = L.hd;
+      if (hd.kind === 'manual') continue;
+      g.seats.forEach(pid => P[pid] && P[pid].hands++);
+      (hd.riichi || []).forEach(i => P[g.seats[i]] && P[g.seats[i]].riichi++);
+      // 打点、放铳点都按牌面计：不含本场和供托（包牌时只计放铳者自己付的部分）
+      const pao = hd.han >= 13 && hd.pao != null && hd.pao !== hd.winner && hd.pao !== hd.loser;
+      if (hd.kind === 'ron' || hd.kind === 'tsumo') { const x = P[g.seats[hd.winner]]; if (x) { x.win++; x.winPts += hd.kind === 'ron' ? L.value : L.value - 300 * L.honba; } }
+      if (L.dealIn) {
+        const x = P[g.seats[L.dealIn.seat]]; if (x) { x.dealin++; x.dealPts += pao ? L.dealIn.points : L.dealIn.points - 300 * L.honba; }
+        if (!worst || L.dealIn.points > worst.points) worst = { points: L.dealIn.points, pid: g.seats[L.dealIn.seat], to: g.seats[hd.winner], g, label: L.label, hand: handName(hd) };
+      }
+    }
+  }
+  const list = Object.values(P).map(x => ({ ...x, pt: Math.round(x.pt * 10) / 10, avg: x.n ? x.ranks.reduce((a, c, i) => a + c * (i + 1), 0) / x.n : null,
+    avgWin: x.win ? x.winPts / x.win : null, avgDeal: x.dealin ? x.dealPts / x.dealin : null }));
+  return { list, worst };
+}
+const r1 = v => Math.round(v * 10) / 10;
+// 替补不参与头衔排名，排在最后
+const rankSort = key => (a, b) => a.backup - b.backup || (b.n + (b.reg ? b.reg.n : 0) > 0) - (a.n + (a.reg ? a.reg.n : 0) > 0) || b[key] - a[key] || (a.avg ?? 9) - (b.avg ?? 9);
+
+function stats() {
+  const reg = tally(S.games.filter(g => !g.stage)).list, all = tally(S.games.filter(g => !isCasual(g)));
+  for (const x of reg) x.carry = x.n ? r1(x.pt * NORM / x.n) : 0;
+  const list = tally(S.games.filter(isPO)).list.map(x => {
+    const r = reg.find(y => y.id === x.id);
+    return { ...x, reg: r, carry: r.carry, total: r1(r.carry + x.pt) };
+  });
+  list.sort(rankSort('total')); reg.sort(rankSort('pt')); all.list.sort(rankSort('pt'));
+  // 客人只打娱乐局时不出现在排行榜和个人数据里；打过正式比赛则和替补一样列在最后
+  const seen = x => !x.guest || x.n || (x.reg && x.reg.n);
+  return { list: list.filter(seen), reg: reg.filter(seen), all: all.list.filter(seen), worst: all.worst };
+}
+
+function renderMatch() {
+  const el = document.getElementById('match');
+  if (!S.games.length) {
+    el.innerHTML = `<div class="head"><b>第 1 半庄</b><span class="st done">即将开始</span></div>
+      <div class="tiles">${S.roster.filter(p => !p.backup && !p.guest).slice(0, 4).map((p, i) => `<div class="tile"><div class="w">${WINDS[i]}</div><div class="n">${esc(p.name)}</div><div class="s">${START}</div><div class="p">座位待定</div></div>`).join('')}</div>
+      <div class="foot"><span>选手：${S.roster.filter(p => !p.backup && !p.guest).map(p => esc(p.name)).join(' · ') || '待定'}${S.roster.some(p => p.backup) ? ` · 替补：${S.roster.filter(p => p.backup).map(p => esc(p.name)).join('、')}` : ''}</span></div>`;
+    return;
+  }
+  // current = latest unfinished game, else the most recent finished one
+  const sorted = S.games.filter(g => !isCasual(g)).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  const g = sorted.find(x => !replay(x).done) || sorted[0];
+  const R = replay(g);
+  const st = R.done ? `<span class="st done">已终局</span>` : `<span class="st">进行中 · ${roundLabel(R.r, R.h)}</span>`;
+  const tiles = g.seats.map((pid, i) => {
+    const oya = !R.done && R.dealer === i;
+    return `<div class="tile">${oya ? '<span class="oya">庄</span>' : ''}<div class="w ${oya ? 'd' : ''}">${WINDS[i]}</div><div class="n">${esc(nameOf(pid))}</div><div class="s">${R.scores[i]}</div>
+      <div class="p">${R.done ? `${R.rank[i] + 1}位 ${fmtPt(R.pts[i])}` : `${R.scores[i] - START >= 0 ? '+' : ''}${R.scores[i] - START}`}</div></div>`;
+  }).join('');
+  el.innerHTML = `<div class="head"><b>${gameName(g)}</b>${st}<span class="meta">${R.done ? '' : `本场 ${R.h} · 供托 ${R.pot}`}</span></div>
+    <div class="tiles">${tiles}</div>
+    <div class="foot"><span>已记录 ${(g.hands || []).length} 局</span><button class="link" data-game="${esc(g.id)}">查看牌谱 →</button></div>`;
+}
+
+function renderRank(list) {
+  const el = document.getElementById('rank');
+  if (!list.length) { el.innerHTML = `<div class="empty">还没有选手。</div>`; return; }
+  const head = `<div class="rrow h"><span>名次</span><span>选手</span><span class="v">总积分</span><span class="v hide-s">常规赛折算</span><span class="v hide-s">季后赛</span><span class="v hide-s">季后赛半庄</span></div>`;
+  el.innerHTML = head + list.map((x, i) => {
+    const any = x.n || x.reg.n;
+    const dist = x.n ? `<div class="bars" title="1/2/3/4 位次数">${x.ranks.map((c, k) => `<i style="width:${c / x.n * 100}%;background:${['var(--aka)', 'var(--gold)', 'var(--felt)', 'var(--muted)'][k]}"></i>`).join('')}</div>` : '';
+    return `<div class="rrow ${x.backup ? 'bk' : any && i === 0 ? 'r1' : ''}">
+      <span class="pos-n">${x.backup ? `<span class="sub">${x.guest ? '客人' : '替补'}</span>` : any ? i + 1 : '–'}</span>
+      <div><div class="who">${esc(x.name)}${any && i < 3 && !x.backup ? `<span class="badge" style="background:${MEDAL[i]}">${TITLES[i]}</span>` : ''}</div>
+        <div class="muted small num show-s">常规赛 ${fmtPt(x.carry)} · 季后赛 ${fmtPt(x.pt)}（${x.n}/${PLAYOFF}）</div>${dist}</div>
+      <span class="v pt ${sign(x.total)}">${any ? fmtPt(x.total) : '—'}</span>
+      <span class="v hide-s ${sign(x.carry)}">${x.reg.n ? fmtPt(x.carry) : '—'}</span>
+      <span class="v hide-s ${sign(x.pt)}">${x.n ? fmtPt(x.pt) : '—'}</span>
+      <span class="v hide-s">${x.n}/${PLAYOFF}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderFull(id, list, norm) {
+  document.getElementById(id).innerHTML = list.map((x, i) => `<tr>
+    <td>${x.backup ? (x.guest ? '客人' : '替补') : x.n ? i + 1 : '–'}</td><td>${esc(x.name)}${x.backup ? `<span class="muted">（${x.guest ? '客人' : '替补'}）</span>` : ''}</td>
+    <td class="${sign(x.pt)}"><b>${x.n ? fmtPt(x.pt) : '–'}</b></td>
+    <td>${x.n}</td>${norm ? `<td class="${sign(x.carry)}">${x.n ? fmtPt(x.carry) : '–'}</td>` : ''}<td>${x.ranks.join(' / ')}</td>
+    <td>${x.avg != null ? x.avg.toFixed(2) : '–'}</td>
+    <td>${x.hands ? (x.win / x.hands * 100).toFixed(1) + '%' : '–'}</td>
+    <td>${x.avgWin != null ? Math.round(x.avgWin).toLocaleString('en-US') : '–'}</td>
+    <td>${x.hands ? (x.dealin / x.hands * 100).toFixed(1) + '%' : '–'}</td>
+    <td>${x.avgDeal != null ? Math.round(x.avgDeal).toLocaleString('en-US') : '–'}</td>
+    <td>${x.riichi}</td></tr>`).join('');
+}
+
+function renderStats(list, worst) {
+  const played = list.filter(x => x.n);
+  const turtle = played.filter(x => x.hands).sort((a, b) => a.dealin / a.hands - b.dealin / b.hands || b.hands - a.hands)[0];
+  const card = (title, unit, rows) => `<div class="card"><h3>${title}<small>${unit}</small></h3>${rows.length ? `<ol>${rows.map((r, i) => `<li><span class="i">${i + 1}</span><span>${esc(r[0])}</span><span class="num">${r[1]}</span></li>`).join('')}</ol>` : `<div class="muted small">第一个半庄结束后显示。</div>`}</div>`;
+  const by = (f, fmt) => played.slice().sort((a, b) => f(b) - f(a)).map(x => [x.name, fmt(f(x))]);
+  const html = [
+    card('最高得点', '单个半庄终局点数', by(x => x.best, v => v.toLocaleString('en-US'))),
+    card('一位次数', '次', by(x => x.ranks[0], v => v)),
+    card('四位回避率', '没吃四位的比例', by(x => 1 - x.ranks[3] / x.n, v => v.toFixed(4))),
+    card('和了率', '和了局数 / 参与局数', played.filter(x => x.hands).slice().sort((a, b) => b.win / b.hands - a.win / a.hands).map(x => [x.name, (x.win / x.hands * 100).toFixed(1) + '%'])),
+    card('平均打点', '每次和了的点数，不含本场、供托', played.filter(x => x.win).slice().sort((a, b) => b.avgWin - a.avgWin).map(x => [x.name, Math.round(x.avgWin).toLocaleString('en-US')])),
+    card('平均放铳', '每次放铳的点数，越低越好', played.filter(x => x.dealin).slice().sort((a, b) => a.avgDeal - b.avgDeal).map(x => [x.name, Math.round(x.avgDeal).toLocaleString('en-US')])),
+    card('立直次数', '次', by(x => x.riichi, v => v)),
+    `<div class="card"><h3>最大野猪<small>单次放铳最大</small></h3>${worst
+      ? `<div class="award"><span class="big">−${worst.points.toLocaleString('en-US')}</span><span><b>${esc(nameOf(worst.pid))}</b> 放铳给 ${esc(nameOf(worst.to))}</span><span class="muted small">${gameName(worst.g)} · ${worst.label} · ${worst.hand}</span></div>`
+      : `<div class="muted small">还没有放铳记录。</div>`}</div>`,
+    `<div class="card"><h3>最大乌龟<small>放铳率最低</small></h3>${turtle
+      ? `<div class="award"><span class="big" style="color:var(--felt)">${(turtle.dealin / turtle.hands * 100).toFixed(1)}%</span><span><b>${esc(turtle.name)}</b> 放铳 ${turtle.dealin} 次 / 参与 ${turtle.hands} 局</span><span class="muted small">同率时参与局数多者优先</span></div>`
+      : `<div class="muted small">第一个半庄结束后显示。</div>`}</div>`,
+  ];
+  document.getElementById('statcards').innerHTML = html.join('');
+}
+
+function cell(g, label) {
+  const R = replay(g);
+  if (!R.done) return `<button class="cell live" data-game="${esc(g.id)}"><span class="no">${label}</span><span class="tag">进行中 · ${roundLabel(R.r, R.h)}</span><span class="top1 muted">已记录 ${(g.hands || []).length} 局</span></button>`;
+  const top = R.rank.indexOf(0);
+  return `<button class="cell done" data-game="${esc(g.id)}"><span class="no">${label}</span><span class="tag">已终局</span><span class="top1">1 位 <b>${esc(nameOf(g.seats[top]))}</b> <span class="num pos">${fmtPt(R.pts[top])}</span></span></button>`;
+}
+function renderSched(id, games, count) {
+  const m = {};
+  for (const g of games) (m[g.no] = m[g.no] || []).push(g);
+  for (const k in m) m[k].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+  document.getElementById(id).innerHTML = Array.from({ length: count }, (_, k) => {
+    const no = k + 1, gs = m[no] || [];
+    if (!gs.length) return `<div class="cell todo"><span class="no">第 ${no} 半庄</span><span class="tag">未开始</span></div>`;
+    return cell(gs[gs.length - 1], `第 ${no} 半庄`);
+  }).join('');
+}
+function renderCasual(games) {
+  document.getElementById('casualFold').hidden = !games.length;
+  document.getElementById('casualSum').textContent = `${games.length} 局 · 不计入排名和个人数据`;
+  document.getElementById('schedCasual').innerHTML = games.slice().sort((a, b) => a.no - b.no || (a.createdAt || 0) - (b.createdAt || 0)).map(g => cell(g, gameName(g))).join('');
+}
+
+function renderGame(g) {
+  const R = replay(g), P = i => esc(nameOf(g.seats[i]));
+  const seats = g.seats.map((pid, i) => `<div class="seat ${!R.done && R.dealer === i ? 'dealer' : ''}">
+      ${!R.done && R.dealer === i ? '<span class="dtag">庄</span>' : ''}
+      <span class="wind">${WINDS[i]}</span><span class="who">${P(i)}</span>
+      <span class="sc">${R.scores[i]}</span>
+      <span class="meta num">${R.done ? `${R.rank[i] + 1}位 · <span class="${sign(R.pts[i])}">${fmtPt(R.pts[i])}</span>${R.pen[i] ? `（罚 ${R.pen[i]}）` : ''}` : `${R.scores[i] - START >= 0 ? '+' : ''}${R.scores[i] - START}`}</span>
+    </div>`).join('');
+  const log = R.log.length ? R.log.slice().reverse().map(L => {
+    const hd = L.hd;
+    let what = '';
+    if (hd.kind === 'ron') what = `<b>${P(hd.winner)}</b> 荣和 ${P(hd.loser)} · ${handName(hd)} ${L.value}`;
+    else if (hd.kind === 'tsumo') what = `<b>${P(hd.winner)}</b> 自摸 · ${handName(hd)}`;
+    else if (hd.kind === 'draw') what = `流局 · 听牌：${(hd.tenpai || []).length ? hd.tenpai.map(P).join('、') : '无'}`;
+    else what = `调整${hd.note ? ' · ' + esc(hd.note) : ''}${(hd.pen || []).some(Number) ? ' · 罚则 ' + hd.pen.map((v, i) => +v ? `${P(i)} ${v}` : '').filter(Boolean).join('、') : ''}`;
+    const rc = (hd.pao != null ? ` · 包牌：${P(hd.pao)}` : '') + ((hd.riichi || []).length ? ` · 立直：${hd.riichi.map(P).join('、')}` : '');
+    return `<div class="hl"><span class="rd">${L.label}</span><div>${what}${rc}<div class="ds">${L.d.map((v, i) => `${WINDS[i]}${fmtD(v)}`).join('  ')}</div></div></div>`;
+  }).join('') : `<div class="muted small">这个半庄没有逐局记录。</div>`;
+  document.getElementById('detailIn').innerHTML = `
+    <button class="back" data-back>← 返回首页</button>
+    <div class="ghead"><span class="gno">${gameName(g)}</span><span class="state">${R.done ? '终局' : roundLabel(R.r, R.h)}</span>
+      <span class="muted small">本场 ${R.done ? '–' : R.h} · 供托 ${R.pot} · 已记录 ${(g.hands || []).length} 局</span></div>
+    <div class="board">${seats}</div>
+    ${isCasual(g) ? `<p class="muted small">娱乐局，不计入排名和个人数据。</p>` : ''}
+    ${g.final ? `<p class="muted small">终局点数为直接录入。</p>` : ''}
+    <div class="card"><h3>牌谱</h3>${log}</div>`;
+}
+
+function showGame(id) {
+  const g = S.games.find(x => x.id === id); if (!g) return;
+  renderGame(g);
+  document.getElementById('home').hidden = true;
+  document.getElementById('detail').hidden = false;
+  window.scrollTo(0, 0);
+}
+function showHome(anchor) {
+  document.getElementById('detail').hidden = true;
+  document.getElementById('home').hidden = false;
+  if (anchor) document.querySelector(anchor)?.scrollIntoView();
+}
+
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-game]');
+  if (g) { showGame(g.dataset.game); return; }
+  if (e.target.closest('[data-back]')) { showHome('#schedule'); return; }
+  const h = e.target.closest('a[data-home]');
+  if (h && !document.getElementById('detail').hidden) { e.preventDefault(); showHome(h.getAttribute('href')); }
+});
+
+(async () => {
+  try {
+    const d = await (await fetch('data.json', { cache: 'no-store' })).json();
+    S.roster = d.roster || []; S.games = d.games || []; S.syncedAt = d.syncedAt;
+  } catch (e) {
+    document.getElementById('match').innerHTML = `<div class="head"><b>成绩暂时读不出来</b></div><p class="small">请稍后刷新页面。</p>`;
+    return;
+  }
+  const { list, reg, all, worst } = stats();
+  const po = S.games.filter(isPO), regGames = S.games.filter(g => !g.stage);
+  renderMatch(); renderRank(list);
+  document.getElementById('fullWrap').hidden = !po.length; renderFull('full', list, false);
+  renderFull('fullReg', reg, true);
+  document.getElementById('regSum').textContent = `${regGames.length} 个半庄 · ` + reg.filter(x => x.n && !x.backup).map(x => `${x.name} ${fmtPt(x.carry)}`).join(' · ');
+  renderStats(all, worst);
+  renderSched('sched', po, PLAYOFF); renderSched('schedReg', regGames, TOTAL); renderCasual(S.games.filter(isCasual));
+  if (S.syncedAt) document.getElementById('synced').textContent = `成绩更新于 ${new Date(S.syncedAt).toLocaleString('zh-CN', { hour12: false })}`;
+})();
+</script>
+</body>
+</html>

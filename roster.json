@@ -18,13 +18,11 @@
   },
   {
    "id": "p_lanslie",
-   "name": "Lanslie",
-   "backup": true
+   "name": "Lanslie"
   },
   {
    "id": "p_max",
-   "name": "Max",
-   "backup": true
+   "name": "Max"
   }
  ]
 }

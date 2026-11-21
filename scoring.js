@@ -3,13 +3,20 @@
 /* ---------- rules (M.LEAGUE) ---------- */
 const WINDS = ['东','南','西','北'];
 const UMA = [50, 10, -10, -30];            // 顺位点（1 位含头名奖励）
-const START = 25000, RETURN = 30000, TOTAL = 20;
-const PLAYOFF = 4, NORM = 16;               // 季后赛半庄数；常规赛积分折算到 16 个半庄后带入季后赛
+const START = 25000, RETURN = 30000;
+/* ---------- 第二届赛制（第一届冻结在 s1/） ---------- */
+const SEASON = 2;
+const TOTAL = 20;                           // 常规赛一共 20 个半庄，5–6 人加替补轮流上桌
+const MIN = 12;                             // 至少打满 12 局才能进决赛桌
+const NORM = 10;                            // 折算分 = 平均每局积分 × 10
+const CARRY = 0.5;                          // 折算分减半带入决赛桌
+const FINAL = 4, PLAYOFF = 4;               // 决赛桌 4 人，打 4 个半庄
+const SEED = 'p_cj';                        // 上届猪头位：满 12 局即保底进决赛桌（排不进前 4 就顶替第 4 名）
 const STAGES = { playoff: PLAYOFF, casual: 999 };    // stage → 编号上限；常规赛不写 stage；娱乐局不计分
-const stageOf = g => STAGES[g.stage] ? { stage: g.stage } : {};
+const stageOf = g => ({ season: SEASON, ...(STAGES[g.stage] ? { stage: g.stage } : {}) });
 const isPO = g => g.stage === 'playoff';
 const isCasual = g => g.stage === 'casual';
-const gameName = g => isPO(g) ? `季后赛第 ${g.no} 半庄` : isCasual(g) ? `娱乐局 #${g.no}` : `第 ${g.no} 半庄`;
+const gameName = g => isPO(g) ? `决赛第 ${g.no} 半庄` : isCasual(g) ? `娱乐局 #${g.no}` : `第 ${g.no} 半庄`;
 // 无数え役满：普通役 11 番以上按三倍满封顶；13/26/39 = 役满 / 复合役满
 const HAN_OPTS = [[1,'1 番'],[2,'2 番'],[3,'3 番'],[4,'4 番'],[5,'满贯（5 番）'],[6,'跳满（6–7 番）'],[8,'倍满（8–10 番）'],[11,'三倍满（11 番以上）'],[13,'役满'],[26,'两倍役满（复合）'],[39,'三倍役满（复合）']];
 const FU_OPTS = [20,25,30,40,50,60,70,80,90,100,110];

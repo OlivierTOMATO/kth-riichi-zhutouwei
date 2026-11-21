@@ -1,9 +1,17 @@
 # 猪头位 · KTH 立直麻将公开赛
 
-Site: https://oliviertomato.github.io/kth-riichi-zhutouwei/ (M.LEAGUE rules, 切上满贯). Regular season: 20 hanchan, finished.
-Playoffs: 4 hanchan. Each player's regular-season points are scaled to 16 hanchan
-(points × 16 / hanchan played) and carried into the playoffs in full; the homepage ranks by
-carry + playoff points and keeps the regular season folded underneath.
+Site: https://oliviertomato.github.io/kth-riichi-zhutouwei/ (M.LEAGUE rules, 切上满贯).
+
+**Season 2 (current).** Regular season: 20 hanchan, 5–6 players plus backups rotating in, so game counts
+differ. Ranking uses 折算分 = average points per hanchan × 10. Players with at least 12 regular hanchan
+qualify; the top 4 by 折算分 make the final table. The season-1 champion (CJ, `SEED`) is guaranteed a seat
+if they played 12: outside the top 4, they replace 4th place and carry their own (possibly negative) points.
+Backups never make the final table. Final table: 4 hanchan; total = 折算分 × ½ + final-table points.
+All of these numbers live at the top of `scoring.js` (`TOTAL`, `MIN`, `NORM`, `CARRY`, `FINAL`, `PLAYOFF`, `SEED`).
+
+**Season 1 (archived at `/s1/`).** 20 regular hanchan, regular points scaled to 16 hanchan and carried in
+full into 4 playoff hanchan. The archive keeps its own frozen `s1/index.html`, `s1/scoring.js` and
+`s1/roster.json`; its games are the files in `games/` without a `"season"` field.
 
 ## How results get onto the site
 
@@ -22,6 +30,7 @@ request; the **Check submitted game** workflow then shows the scores in the pull
 
 - `roster.json`: players (`id`, `name`). Game files refer to players by id.
 - `games/*.json`: one file per hanchan with seats (东南西北), hand log, optional final scores.
+  Season-2 games carry `"season": 2` (files `s2-….json`); files without it belong to season 1.
   Playoff games carry `"stage": "playoff"` (numbered 1-4, files `playoff-NN-….json`).
   Casual games (娱乐局) carry `"stage": "casual"` (files `casual-NN-….json`): listed on the
   homepage in their own folded section, never counted in rankings or stats.

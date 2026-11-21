@@ -218,7 +218,7 @@ function render() {
 function viewSetup() {
   const key = g => (isPO(g) ? 'p' : isCasual(g) ? 'c' : '') + g.no;
   const done = new Set(S.published.map(key));
-  const slots = [...Array.from({ length: PLAYOFF }, (_, i) => ({ no: i + 1, stage: 'playoff' })), ...Array.from({ length: TOTAL }, (_, i) => ({ no: i + 1 }))];
+  const slots = [...Array.from({ length: TOTAL }, (_, i) => ({ no: i + 1 })), ...Array.from({ length: PLAYOFF }, (_, i) => ({ no: i + 1, stage: 'playoff' }))];
   const next = key(slots.find(g => !done.has(key(g))) || slots[0]);
   const casual = { no: Math.max(0, ...S.published.filter(isCasual).map(g => g.no)) + 1, stage: 'casual' };
   const opt = g => `<option value="${key(g)}" ${key(g) === next ? 'selected' : ''}>${gameName(g)}${done.has(key(g)) ? '（已公布）' : ''}</option>`;
@@ -227,7 +227,7 @@ function viewSetup() {
     <div class="panel">
       <h2 style="margin-bottom:12px">开始一个半庄</h2>
       <div class="row" style="margin-bottom:12px">
-        <label class="f">第几个半庄<select id="ng-no"><optgroup label="季后赛">${slots.filter(isPO).map(opt).join('')}</optgroup><optgroup label="不计分"><option value="${key(casual)}">${gameName(casual)}（随便打一局，不计入比赛）</option></optgroup><optgroup label="常规赛">${slots.filter(g => !isPO(g)).map(opt).join('')}</optgroup></select></label>
+        <label class="f">第几个半庄<select id="ng-no"><optgroup label="常规赛">${slots.filter(g => !isPO(g)).map(opt).join('')}</optgroup><optgroup label="决赛桌">${slots.filter(isPO).map(opt).join('')}</optgroup><optgroup label="不计分"><option value="${key(casual)}">${gameName(casual)}（随便打一局，不计入比赛）</option></optgroup></select></label>
         <label class="f">记录人<input type="text" id="ng-scorer" placeholder="你的名字" maxlength="40"></label>
       </div>
       <div class="row" style="margin-bottom:14px">${WINDS.map((w, i) => `<label class="f">${w}家${i === 0 ? '（起家）' : ''}<select id="ng-s${i}">${opts}</select></label>`).join('')}</div>
@@ -472,7 +472,7 @@ function gameJSON(g) {
 function fileName(g) {
   const d = new Date(g.createdAt || Date.now());
   const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
-  return `games/${isPO(g) ? 'playoff' : isCasual(g) ? 'casual' : 'hanchan'}-${String(g.no).padStart(2, '0')}-${stamp}.json`;
+  return `games/s${SEASON}-${isPO(g) ? 'playoff' : isCasual(g) ? 'casual' : 'hanchan'}-${String(g.no).padStart(2, '0')}-${stamp}.json`;
 }
 
 /* ---------- events ---------- */

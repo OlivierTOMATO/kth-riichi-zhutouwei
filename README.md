@@ -1,4 +1,4 @@
-# 猪头位 · KTH 立直麻将公开赛
+# 水牛位 · KTH 立直麻将公开赛（第二届；第一届叫猪头位）
 
 Site: https://oliviertomato.github.io/kth-riichi-zhutouwei/ (M.LEAGUE rules, 切上满贯).
 

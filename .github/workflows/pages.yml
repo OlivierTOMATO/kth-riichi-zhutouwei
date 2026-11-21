@@ -12,11 +12,10 @@ concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
-  deploy:
+  # Two jobs, as in GitHub's Pages template: deploying in the same job right after the upload
+  # sometimes fails with "No artifacts named github-pages" (the artifact is not listed yet).
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - run: python3 tools/build.py --out _site
@@ -24,5 +23,12 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4

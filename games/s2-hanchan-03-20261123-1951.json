@@ -1,0 +1,24 @@
+{
+  "_players": "Dean / CJ / Snowhite / Lihan",
+  "no": 3,
+  "season": 2,
+  "table": "",
+  "seats": ["p_dean","p_cj","p_snowhite","p_lihan"],
+  "final": null,
+  "createdAt": 1795459874836,
+  "scorer": "",
+  "hands": [
+    {"kind":"ron","winner":0,"loser":1,"han":5,"fu":30,"riichi":[0,2]},
+    {"kind":"tsumo","winner":1,"han":4,"fu":30,"riichi":[1,3]},
+    {"kind":"ron","winner":1,"loser":0,"han":2,"fu":30,"riichi":[1]},
+    {"kind":"tsumo","winner":1,"han":4,"fu":30,"riichi":[]},
+    {"kind":"draw","tenpai":[1,2],"riichi":[]},
+    {"kind":"tsumo","winner":0,"han":4,"fu":30,"riichi":[0]},
+    {"kind":"draw","tenpai":[0,3],"riichi":[]},
+    {"kind":"draw","tenpai":[0,2],"riichi":[2]},
+    {"kind":"ron","winner":2,"loser":3,"han":1,"fu":30,"riichi":[]},
+    {"kind":"ron","winner":3,"loser":0,"han":2,"fu":25,"riichi":[1]},
+    {"kind":"ron","winner":3,"loser":0,"han":2,"fu":30,"riichi":[]},
+    {"kind":"tsumo","winner":0,"han":3,"fu":30,"riichi":[3]}
+  ]
+}

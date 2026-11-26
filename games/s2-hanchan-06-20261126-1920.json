@@ -1,0 +1,20 @@
+{
+  "_players": "Dean / Snowhite / Lanslie / Lihan",
+  "no": 6,
+  "season": 2,
+  "table": "",
+  "seats": ["p_dean","p_snowhite","p_lanslie","p_lihan"],
+  "final": null,
+  "createdAt": 1795717248321,
+  "scorer": "",
+  "hands": [
+    {"kind":"ron","winner":2,"loser":3,"han":6,"fu":30,"riichi":[2,3]},
+    {"kind":"tsumo","winner":2,"han":1,"fu":30,"riichi":[]},
+    {"kind":"ron","winner":1,"loser":3,"han":4,"fu":30,"riichi":[1]},
+    {"kind":"tsumo","winner":2,"han":2,"fu":40,"riichi":[]},
+    {"kind":"ron","winner":3,"loser":2,"han":2,"fu":30,"riichi":[]},
+    {"kind":"tsumo","winner":2,"han":5,"fu":30,"riichi":[2,3]},
+    {"kind":"ron","winner":0,"loser":2,"han":4,"fu":30,"riichi":[0]},
+    {"kind":"tsumo","winner":1,"han":5,"fu":30,"riichi":[]}
+  ]
+}

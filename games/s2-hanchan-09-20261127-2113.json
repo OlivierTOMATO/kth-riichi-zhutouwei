@@ -1,0 +1,21 @@
+{
+  "_players": "CJ / Lihan / Estelle / Dean",
+  "no": 9,
+  "season": 2,
+  "table": "",
+  "seats": [
+    "p_cj",
+    "p_lihan",
+    "p_estelle",
+    "p_dean"
+  ],
+  "final": [
+    22500,
+    12600,
+    31400,
+    33500
+  ],
+  "createdAt": 1795810380000,
+  "scorer": "雀魂牌谱（终局点数，逐局待补）",
+  "hands": []
+}

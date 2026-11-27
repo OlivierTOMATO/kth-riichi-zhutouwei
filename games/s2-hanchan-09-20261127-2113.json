@@ -1,21 +1,93 @@
 {
-  "_players": "CJ / Lihan / Estelle / Dean",
+  "_players": "Lihan / Estelle / Dean / CJ",
   "no": 9,
   "season": 2,
   "table": "",
   "seats": [
-    "p_cj",
     "p_lihan",
     "p_estelle",
-    "p_dean"
+    "p_dean",
+    "p_cj"
   ],
-  "final": [
-    22500,
-    12600,
-    31400,
-    33500
-  ],
+  "final": null,
   "createdAt": 1795810380000,
-  "scorer": "雀魂牌谱（终局点数，逐局待补）",
-  "hands": []
+  "scorer": "雀魂牌谱（mjai.ekyu.moe 逐局）",
+  "hands": [
+    {
+      "kind": "ron",
+      "winner": 2,
+      "han": 1,
+      "fu": 30,
+      "loser": 1,
+      "riichi": []
+    },
+    {
+      "kind": "tsumo",
+      "winner": 1,
+      "han": 1,
+      "fu": 40,
+      "riichi": []
+    },
+    {
+      "kind": "ron",
+      "winner": 2,
+      "han": 2,
+      "fu": 30,
+      "loser": 1,
+      "riichi": []
+    },
+    {
+      "kind": "tsumo",
+      "winner": 1,
+      "han": 2,
+      "fu": 30,
+      "riichi": [
+        1
+      ]
+    },
+    {
+      "kind": "ron",
+      "winner": 2,
+      "han": 3,
+      "fu": 30,
+      "loser": 1,
+      "riichi": [
+        1
+      ]
+    },
+    {
+      "kind": "ron",
+      "winner": 1,
+      "han": 5,
+      "fu": 30,
+      "loser": 0,
+      "riichi": [
+        1
+      ]
+    },
+    {
+      "kind": "tsumo",
+      "winner": 0,
+      "han": 1,
+      "fu": 30,
+      "riichi": []
+    },
+    {
+      "kind": "draw",
+      "tenpai": [
+        1
+      ],
+      "riichi": []
+    },
+    {
+      "kind": "ron",
+      "winner": 2,
+      "han": 2,
+      "fu": 30,
+      "loser": 0,
+      "riichi": [
+        0
+      ]
+    }
+  ]
 }

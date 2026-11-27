@@ -1,21 +1,129 @@
 {
-  "_players": "CJ / Lihan / Estelle / Dean",
+  "_players": "CJ / Dean / Lihan / Estelle",
   "no": 10,
   "season": 2,
   "table": "",
   "seats": [
     "p_cj",
+    "p_dean",
     "p_lihan",
-    "p_estelle",
-    "p_dean"
+    "p_estelle"
   ],
-  "final": [
-    30000,
-    27100,
-    13800,
-    29100
-  ],
+  "final": null,
   "createdAt": 1795814520000,
-  "scorer": "雀魂牌谱（终局点数，逐局待补；座位顺序未核对）",
-  "hands": []
+  "scorer": "雀魂牌谱（mjai.ekyu.moe 逐局）",
+  "hands": [
+    {
+      "kind": "tsumo",
+      "winner": 2,
+      "han": 5,
+      "fu": 30,
+      "riichi": [
+        2
+      ]
+    },
+    {
+      "kind": "draw",
+      "tenpai": [
+        3
+      ],
+      "riichi": [
+        3
+      ]
+    },
+    {
+      "kind": "tsumo",
+      "winner": 1,
+      "han": 2,
+      "fu": 30,
+      "riichi": []
+    },
+    {
+      "kind": "ron",
+      "winner": 0,
+      "han": 6,
+      "fu": 30,
+      "loser": 2,
+      "riichi": []
+    },
+    {
+      "kind": "ron",
+      "winner": 0,
+      "han": 5,
+      "fu": 30,
+      "loser": 3,
+      "riichi": [
+        0
+      ]
+    },
+    {
+      "kind": "ron",
+      "winner": 1,
+      "han": 5,
+      "fu": 30,
+      "loser": 0,
+      "riichi": [
+        3
+      ]
+    },
+    {
+      "kind": "tsumo",
+      "winner": 3,
+      "han": 4,
+      "fu": 20,
+      "riichi": [
+        0,
+        3
+      ]
+    },
+    {
+      "kind": "ron",
+      "winner": 0,
+      "han": 4,
+      "fu": 30,
+      "loser": 3,
+      "riichi": [
+        0,
+        3
+      ]
+    },
+    {
+      "kind": "ron",
+      "winner": 3,
+      "han": 1,
+      "fu": 30,
+      "loser": 2,
+      "riichi": []
+    },
+    {
+      "kind": "tsumo",
+      "winner": 3,
+      "han": 3,
+      "fu": 20,
+      "riichi": [
+        3
+      ]
+    },
+    {
+      "kind": "draw",
+      "tenpai": [
+        2,
+        3
+      ],
+      "riichi": [
+        2,
+        3
+      ]
+    },
+    {
+      "kind": "ron",
+      "winner": 2,
+      "han": 5,
+      "fu": 30,
+      "loser": 0,
+      "riichi": [
+        3
+      ]
+    }
+  ]
 }

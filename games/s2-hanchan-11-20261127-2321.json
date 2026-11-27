@@ -1,0 +1,162 @@
+{
+  "_players": "Lanslie / Dean / Lihan / CJ",
+  "no": 11,
+  "season": 2,
+  "table": "",
+  "seats": [
+    "p_lanslie",
+    "p_dean",
+    "p_lihan",
+    "p_cj"
+  ],
+  "final": null,
+  "createdAt": 1795818060000,
+  "scorer": "雀魂牌谱（mjai.ekyu.moe 逐局）",
+  "hands": [
+    {
+      "kind": "ron",
+      "winner": 1,
+      "han": 3,
+      "fu": 30,
+      "loser": 2,
+      "riichi": []
+    },
+    {
+      "kind": "ron",
+      "winner": 1,
+      "han": 2,
+      "fu": 30,
+      "loser": 0,
+      "riichi": []
+    },
+    {
+      "kind": "tsumo",
+      "winner": 0,
+      "han": 3,
+      "fu": 30,
+      "riichi": []
+    },
+    {
+      "kind": "tsumo",
+      "winner": 2,
+      "han": 3,
+      "fu": 30,
+      "riichi": [
+        2
+      ]
+    },
+    {
+      "kind": "tsumo",
+      "winner": 2,
+      "han": 1,
+      "fu": 40,
+      "riichi": []
+    },
+    {
+      "kind": "tsumo",
+      "winner": 2,
+      "han": 2,
+      "fu": 40,
+      "riichi": [
+        1
+      ]
+    },
+    {
+      "kind": "ron",
+      "winner": 2,
+      "han": 3,
+      "fu": 40,
+      "loser": 3,
+      "riichi": [
+        2
+      ]
+    },
+    {
+      "kind": "ron",
+      "winner": 0,
+      "han": 5,
+      "fu": 30,
+      "loser": 1,
+      "riichi": []
+    },
+    {
+      "kind": "ron",
+      "winner": 3,
+      "han": 6,
+      "fu": 30,
+      "loser": 0,
+      "riichi": [
+        0
+      ]
+    },
+    {
+      "kind": "tsumo",
+      "winner": 3,
+      "han": 2,
+      "fu": 40,
+      "riichi": []
+    },
+    {
+      "kind": "ron",
+      "winner": 1,
+      "han": 5,
+      "fu": 30,
+      "loser": 3,
+      "riichi": [
+        1
+      ]
+    },
+    {
+      "kind": "ron",
+      "winner": 0,
+      "han": 3,
+      "fu": 30,
+      "loser": 1,
+      "riichi": [
+        1
+      ]
+    },
+    {
+      "kind": "ron",
+      "winner": 1,
+      "han": 3,
+      "fu": 30,
+      "loser": 0,
+      "riichi": []
+    },
+    {
+      "kind": "tsumo",
+      "winner": 1,
+      "han": 1,
+      "fu": 30,
+      "riichi": []
+    },
+    {
+      "kind": "tsumo",
+      "winner": 3,
+      "han": 3,
+      "fu": 30,
+      "riichi": [
+        3
+      ]
+    },
+    {
+      "kind": "ron",
+      "winner": 1,
+      "han": 5,
+      "fu": 30,
+      "loser": 0,
+      "riichi": [
+        1
+      ]
+    },
+    {
+      "kind": "ron",
+      "winner": 2,
+      "han": 3,
+      "fu": 30,
+      "loser": 0,
+      "riichi": []
+    }
+  ]
+}
